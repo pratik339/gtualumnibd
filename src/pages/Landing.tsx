@@ -16,8 +16,8 @@ export default function Landing() {
     },
     {
       icon: BookOpen,
-      title: 'Scholar Directory',
-      description: 'Access profiles of current scholars and learn about their achievements.',
+      title: 'Student Directory',
+      description: 'Access profiles of current students and learn about their achievements.',
     },
     {
       icon: BarChart3,
@@ -43,12 +43,12 @@ export default function Landing() {
               <span className="text-sm font-medium text-primary">Gujarat Technological University</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Alumni & Scholar{' '}
+              GTU Alumni{' '}
               <span className="text-primary">Database</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Connect, collaborate, and grow with the GTU community. Track achievements, 
-              explore opportunities, and stay connected with fellow scholars and alumni.
+              explore opportunities, and stay connected with fellow students and alumni.
             </p>
             
             {user ? (
@@ -102,14 +102,14 @@ export default function Landing() {
                   <div className="w-16 h-16 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                     <BookOpen className="h-8 w-8 text-primary" />
                   </div>
-                  <CardTitle>Current Scholar</CardTitle>
+                  <CardTitle>Current Student</CardTitle>
                   <CardDescription>
                     Students currently pursuing studies at GTU
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full">
-                    <Link to="/auth">Register as Scholar</Link>
+                    <Link to="/auth">Register as Student</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -165,7 +165,7 @@ export default function Landing() {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">GTU</span>
               </div>
-              <span className="font-medium">Alumni & Scholar Database</span>
+              <span className="font-medium">GTU Alumni Database</span>
             </div>
             <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} Gujarat Technological University. All rights reserved.

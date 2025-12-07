@@ -99,7 +99,7 @@ export default function Auth() {
               <GraduationCap className="h-8 w-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">GTU Alumni & Scholars</CardTitle>
+          <CardTitle className="text-2xl">GTU Alumni Database</CardTitle>
           <CardDescription>Sign in to access your account</CardDescription>
         </CardHeader>
         <CardContent>

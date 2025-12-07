@@ -13,7 +13,7 @@ export default function Dashboard() {
   const { profiles } = useProfiles({ status: 'approved' });
 
   const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
-  const scholarCount = profiles.filter(p => p.user_type === 'scholar').length;
+  const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
 
   if (loading) {
     return (
@@ -38,7 +38,7 @@ export default function Dashboard() {
         <div className="container py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Welcome{profile?.full_name ? `, ${profile.full_name}` : ''}!</h1>
-            <p className="text-muted-foreground">Your GTU Alumni & Scholar Dashboard</p>
+            <p className="text-muted-foreground">Your GTU Alumni Database Dashboard</p>
           </div>
 
           {!profile && (
@@ -88,7 +88,7 @@ export default function Dashboard() {
                   <div>
                     <h3 className="font-semibold">{profile.full_name}</h3>
                     <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'}>
-                      {profile.user_type === 'alumni' ? 'Alumni' : 'Current Scholar'}
+                      {profile.user_type === 'alumni' ? 'Alumni' : 'Current Student'}
                     </Badge>
                   </div>
                   <Button variant="outline" className="ml-auto" asChild>
@@ -120,11 +120,11 @@ export default function Dashboard() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Current Scholars</CardTitle>
+                <CardTitle className="text-sm font-medium">Current Students</CardTitle>
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{scholarCount}</div>
+                <div className="text-2xl font-bold">{studentCount}</div>
               </CardContent>
             </Card>
           </div>

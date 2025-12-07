@@ -90,6 +90,7 @@ export type Database = {
           current_semester: number | null
           email: string | null
           email_visible: boolean | null
+          enrollment_number: string | null
           expected_passout_year: number | null
           experience: string | null
           facebook_url: string | null
@@ -121,6 +122,7 @@ export type Database = {
           current_semester?: number | null
           email?: string | null
           email_visible?: boolean | null
+          enrollment_number?: string | null
           expected_passout_year?: number | null
           experience?: string | null
           facebook_url?: string | null
@@ -152,6 +154,7 @@ export type Database = {
           current_semester?: number | null
           email?: string | null
           email_visible?: boolean | null
+          enrollment_number?: string | null
           expected_passout_year?: number | null
           experience?: string | null
           facebook_url?: string | null
@@ -235,7 +238,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       approval_status: "pending" | "approved" | "rejected"
-      user_type: "alumni" | "scholar"
+      user_type: "alumni" | "scholar" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -365,7 +368,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       approval_status: ["pending", "approved", "rejected"],
-      user_type: ["alumni", "scholar"],
+      user_type: ["alumni", "scholar", "student"],
     },
   },
 } as const

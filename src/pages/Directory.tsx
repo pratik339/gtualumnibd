@@ -18,7 +18,9 @@ export default function Directory() {
     const matchesSearch = profile.full_name.toLowerCase().includes(search.toLowerCase()) ||
       profile.branches?.name?.toLowerCase().includes(search.toLowerCase()) ||
       profile.colleges?.name?.toLowerCase().includes(search.toLowerCase());
-    const matchesType = typeFilter === 'all' || profile.user_type === typeFilter;
+    const matchesType = typeFilter === 'all' || 
+      profile.user_type === typeFilter || 
+      (typeFilter === 'student' && (profile.user_type as string) === 'scholar');
     return matchesSearch && matchesType;
   });
 
@@ -27,7 +29,7 @@ export default function Directory() {
       <Layout>
         <div className="container py-8">
           <h1 className="text-3xl font-bold mb-2">Directory</h1>
-          <p className="text-muted-foreground mb-8">Browse alumni and scholars</p>
+          <p className="text-muted-foreground mb-8">Browse alumni and students</p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <div className="relative flex-1">
@@ -46,7 +48,7 @@ export default function Directory() {
               <SelectContent className="bg-popover">
                 <SelectItem value="all">All Members</SelectItem>
                 <SelectItem value="alumni">Alumni</SelectItem>
-                <SelectItem value="scholar">Scholars</SelectItem>
+                <SelectItem value="student">Students</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -84,7 +86,7 @@ export default function Directory() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold truncate">{profile.full_name}</h3>
                         <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'} className="mt-1">
-                          {profile.user_type === 'alumni' ? 'Alumni' : 'Scholar'}
+                          {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
                         </Badge>
                         {profile.branches?.name && (
                           <p className="text-sm text-muted-foreground mt-2">{profile.branches.name}</p>

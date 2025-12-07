@@ -17,7 +17,7 @@ import { Loader2, GraduationCap, BookOpen, Upload } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-type UserType = 'alumni' | 'scholar';
+type UserType = 'alumni' | 'student';
 
 export default function Register() {
   const { user } = useAuth();
@@ -36,6 +36,7 @@ export default function Register() {
     full_name: '',
     college_id: '',
     branch_id: '',
+    enrollment_number: '',
     passout_year: '',
     current_semester: '',
     expected_passout_year: '',
@@ -108,6 +109,15 @@ export default function Register() {
       return;
     }
 
+    if (userType === 'student' && !formData.enrollment_number.trim()) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please enter your GTU Enrollment Number.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -123,6 +133,7 @@ export default function Register() {
         user_type: userType,
         college_id: formData.college_id || null,
         branch_id: formData.branch_id || null,
+        enrollment_number: userType === 'student' ? formData.enrollment_number || null : null,
         passout_year: formData.passout_year ? parseInt(formData.passout_year) : null,
         current_semester: formData.current_semester ? parseInt(formData.current_semester) : null,
         expected_passout_year: formData.expected_passout_year ? parseInt(formData.expected_passout_year) : null,
@@ -191,13 +202,13 @@ export default function Register() {
 
                 <Card
                   className="cursor-pointer hover:border-primary transition-colors"
-                  onClick={() => setUserType('scholar')}
+                  onClick={() => setUserType('student')}
                 >
                   <CardHeader className="text-center">
                     <div className="w-16 h-16 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                       <BookOpen className="h-8 w-8 text-primary" />
                     </div>
-                    <CardTitle>Current Scholar</CardTitle>
+                    <CardTitle>Current Student</CardTitle>
                     <CardDescription>
                       I am currently studying at GTU
                     </CardDescription>
@@ -220,7 +231,7 @@ export default function Register() {
               <div>
                 <h1 className="text-3xl font-bold">Complete Your Profile</h1>
                 <p className="text-muted-foreground">
-                  {userType === 'alumni' ? 'Alumni' : 'Current Scholar'} Registration
+                  {userType === 'alumni' ? 'Alumni' : 'Current Student'} Registration
                 </p>
               </div>
               <Button variant="ghost" onClick={() => setUserType(null)}>
@@ -346,6 +357,16 @@ export default function Register() {
                     </div>
                   ) : (
                     <>
+                      <div>
+                        <Label htmlFor="enrollment_number">GTU Enrollment Number *</Label>
+                        <Input
+                          id="enrollment_number"
+                          placeholder="e.g., 200120107001"
+                          value={formData.enrollment_number}
+                          onChange={(e) => setFormData({ ...formData, enrollment_number: e.target.value })}
+                          required
+                        />
+                      </div>
                       <div>
                         <Label htmlFor="current_semester">Current Semester</Label>
                         <Input
