@@ -108,7 +108,9 @@ export default function Admin() {
                             <div>
                               <h3 className="font-semibold">{profile.full_name}</h3>
                               <div className="flex items-center gap-2">
-                                <Badge variant="secondary">{profile.user_type}</Badge>
+                                <Badge variant="secondary">
+                                  {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
+                                </Badge>
                                 {profile.branches?.name && <span className="text-sm text-muted-foreground">{profile.branches.name}</span>}
                               </div>
                             </div>

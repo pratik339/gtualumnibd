@@ -58,7 +58,7 @@ export const Header = () => {
             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-sm">GTU</span>
             </div>
-            <span className="font-semibold text-lg hidden sm:inline">Alumni & Scholars</span>
+            <span className="font-semibold text-lg hidden sm:inline">Alumni Database</span>
           </Link>
 
           {user && (

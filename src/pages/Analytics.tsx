@@ -8,11 +8,11 @@ export default function Analytics() {
   const { profiles } = useProfiles({ status: 'approved' });
 
   const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
-  const scholarCount = profiles.filter(p => p.user_type === 'scholar').length;
+  const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
 
   const typeData = [
     { name: 'Alumni', value: alumniCount },
-    { name: 'Scholars', value: scholarCount },
+    { name: 'Students', value: studentCount },
   ];
 
   const branchData = profiles.reduce((acc, profile) => {
@@ -66,10 +66,10 @@ export default function Analytics() {
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Current Scholars</CardTitle>
+                <CardTitle className="text-sm font-medium">Current Students</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">{scholarCount}</div>
+                <div className="text-3xl font-bold">{studentCount}</div>
               </CardContent>
             </Card>
           </div>
