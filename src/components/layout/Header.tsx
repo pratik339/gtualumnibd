@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useProfile } from '@/hooks/useProfile';
+import gtuLogo from '@/assets/gtu-logo.png';
 
 export const Header = () => {
   const { user, signOut, isAdmin } = useAuth();
@@ -36,14 +37,14 @@ export const Header = () => {
 
   const NavLinks = () => (
     <>
-      <Link to="/directory" className="text-foreground/80 hover:text-foreground transition-colors">
+      <Link to="/directory" className="text-foreground/80 hover:text-foreground transition-colors hover:scale-105">
         Directory
       </Link>
-      <Link to="/analytics" className="text-foreground/80 hover:text-foreground transition-colors">
+      <Link to="/analytics" className="text-foreground/80 hover:text-foreground transition-colors hover:scale-105">
         Analytics
       </Link>
       {isAdmin && (
-        <Link to="/admin" className="text-foreground/80 hover:text-foreground transition-colors">
+        <Link to="/admin" className="text-foreground/80 hover:text-foreground transition-colors hover:scale-105">
           Admin
         </Link>
       )}
@@ -54,11 +55,11 @@ export const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">GTU</span>
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-xl overflow-hidden bg-background shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
+              <img src={gtuLogo} alt="GTU Logo" className="h-full w-full object-contain p-0.5" />
             </div>
-            <span className="font-semibold text-lg hidden sm:inline">Alumni Database</span>
+            <span className="font-semibold text-lg hidden sm:inline group-hover:text-primary transition-colors">Alumni Database</span>
           </Link>
 
           {user && (
@@ -73,6 +74,7 @@ export const Header = () => {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="hover:scale-110 transition-transform"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -83,10 +85,10 @@ export const Header = () => {
             <>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={profile?.photo_url || undefined} alt={profile?.full_name || 'User'} />
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-primary/10 text-primary">
                         {profile?.full_name ? getInitials(profile.full_name) : 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -139,7 +141,7 @@ export const Header = () => {
               </Sheet>
             </>
           ) : (
-            <Button asChild>
+            <Button asChild className="hover:scale-105 transition-transform">
               <Link to="/auth">Sign In</Link>
             </Button>
           )}

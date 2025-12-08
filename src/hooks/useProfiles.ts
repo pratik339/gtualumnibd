@@ -6,7 +6,7 @@ interface ProfileWithRelations {
   user_id: string;
   full_name: string;
   photo_url: string | null;
-  user_type: 'alumni' | 'scholar';
+  user_type: 'alumni' | 'scholar' | 'student';
   status: 'pending' | 'approved' | 'rejected';
   college_id: string | null;
   branch_id: string | null;
