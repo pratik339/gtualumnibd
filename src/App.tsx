@@ -13,6 +13,8 @@ import Directory from "./pages/Directory";
 import Analytics from "./pages/Analytics";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import ProfileView from "./pages/ProfileView";
+import ProfileEdit from "./pages/ProfileEdit";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +36,8 @@ const App = () => (
               <Route path="/directory" element={<Directory />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/profile/:id" element={<ProfileView />} />
+              <Route path="/profile/edit" element={<ProfileEdit />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

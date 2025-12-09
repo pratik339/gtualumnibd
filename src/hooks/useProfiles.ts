@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface ProfileWithRelations {
+export interface ProfileWithRelations {
   id: string;
   user_id: string;
   full_name: string;
@@ -15,6 +15,7 @@ interface ProfileWithRelations {
   expected_passout_year: number | null;
   scholarship_year: number | null;
   high_commission_id: string | null;
+  enrollment_number: string | null;
   achievements: string | null;
   experience: string | null;
   job_title: string | null;
@@ -31,9 +32,9 @@ interface ProfileWithRelations {
   email_visible: boolean | null;
   created_at: string;
   updated_at: string;
-  colleges: { name: string } | null;
-  branches: { name: string; code: string | null } | null;
-  high_commissions: { name: string; country: string | null } | null;
+  colleges: { id: string; name: string; city: string | null } | null;
+  branches: { id: string; name: string; code: string | null } | null;
+  high_commissions: { id: string; name: string; country: string | null; type: string | null } | null;
 }
 
 interface UseProfilesOptions {
@@ -55,9 +56,9 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
         .from('profiles')
         .select(`
           *,
-          colleges(name),
-          branches(name, code),
-          high_commissions(name, country)
+          colleges:college_id(id, name, city),
+          branches:branch_id(id, name, code),
+          high_commissions:high_commission_id(id, name, country, type)
         `)
         .order('created_at', { ascending: false });
 

@@ -92,7 +92,7 @@ export default function Dashboard() {
                     </Badge>
                   </div>
                   <Button variant="outline" className="ml-auto" asChild>
-                    <Link to="/profile">Edit Profile</Link>
+                    <Link to="/profile/edit">Edit Profile</Link>
                   </Button>
                 </div>
               </CardContent>
