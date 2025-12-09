@@ -56,10 +56,10 @@ export const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-xl overflow-hidden bg-background shadow-sm ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
-              <img src={gtuLogo} alt="GTU Logo" className="h-full w-full object-contain p-0.5" />
+            <div className="h-10 w-10 rounded-xl overflow-hidden bg-card shadow-md ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all group-hover:scale-105 dark:bg-card/80">
+              <img src={gtuLogo} alt="GTU Logo" className="h-full w-full object-contain p-0.5 dark:brightness-110 dark:contrast-110" />
             </div>
-            <span className="font-semibold text-lg hidden sm:inline group-hover:text-primary transition-colors">Alumni Database</span>
+            <span className="font-semibold text-lg hidden sm:inline group-hover:text-primary transition-colors font-serif">Alumni Database</span>
           </Link>
 
           {user && (
