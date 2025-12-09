@@ -63,63 +63,97 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-		keyframes: {
-			'accordion-down': {
-				from: {
-					height: '0'
-				},
-				to: {
-					height: 'var(--radix-accordion-content-height)'
-				}
-			},
-			'accordion-up': {
-				from: {
-					height: 'var(--radix-accordion-content-height)'
-				},
-				to: {
-					height: '0'
-				}
-			},
-			'fade-in': {
-				'0%': { opacity: '0', transform: 'translateY(10px)' },
-				'100%': { opacity: '1', transform: 'translateY(0)' }
-			},
-			'fade-in-up': {
-				'0%': { opacity: '0', transform: 'translateY(20px)' },
-				'100%': { opacity: '1', transform: 'translateY(0)' }
-			},
-			'scale-in': {
-				'0%': { transform: 'scale(0.95)', opacity: '0' },
-				'100%': { transform: 'scale(1)', opacity: '1' }
-			},
-			'slide-in-right': {
-				'0%': { transform: 'translateX(100%)' },
-				'100%': { transform: 'translateX(0)' }
-			},
-			'blob': {
-				'0%, 100%': { borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%' },
-				'50%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' }
-			},
-			'float': {
-				'0%, 100%': { transform: 'translateY(0px)' },
-				'50%': { transform: 'translateY(-10px)' }
-			},
-			'draw': {
-				'0%': { strokeDashoffset: '1000' },
-				'100%': { strokeDashoffset: '0' }
-			}
-		},
-		animation: {
-			'accordion-down': 'accordion-down 0.2s ease-out',
-			'accordion-up': 'accordion-up 0.2s ease-out',
-			'fade-in': 'fade-in 0.5s ease-out',
-			'fade-in-up': 'fade-in-up 0.6s ease-out',
-			'scale-in': 'scale-in 0.3s ease-out',
-			'slide-in-right': 'slide-in-right 0.3s ease-out',
-			'blob': 'blob 8s ease-in-out infinite',
-			'float': 'float 6s ease-in-out infinite',
-			'draw': 'draw 2s ease-out forwards'
-		},
+  		keyframes: {
+  			'accordion-down': {
+  				from: {
+  					height: '0'
+  				},
+  				to: {
+  					height: 'var(--radix-accordion-content-height)'
+  				}
+  			},
+  			'accordion-up': {
+  				from: {
+  					height: 'var(--radix-accordion-content-height)'
+  				},
+  				to: {
+  					height: '0'
+  				}
+  			},
+  			'fade-in': {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'translateY(10px)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
+  			},
+  			'fade-in-up': {
+  				'0%': {
+  					opacity: '0',
+  					transform: 'translateY(20px)'
+  				},
+  				'100%': {
+  					opacity: '1',
+  					transform: 'translateY(0)'
+  				}
+  			},
+  			'scale-in': {
+  				'0%': {
+  					transform: 'scale(0.95)',
+  					opacity: '0'
+  				},
+  				'100%': {
+  					transform: 'scale(1)',
+  					opacity: '1'
+  				}
+  			},
+  			'slide-in-right': {
+  				'0%': {
+  					transform: 'translateX(100%)'
+  				},
+  				'100%': {
+  					transform: 'translateX(0)'
+  				}
+  			},
+  			blob: {
+  				'0%, 100%': {
+  					borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%'
+  				},
+  				'50%': {
+  					borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%'
+  				}
+  			},
+  			float: {
+  				'0%, 100%': {
+  					transform: 'translateY(0px)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-10px)'
+  				}
+  			},
+  			draw: {
+  				'0%': {
+  					strokeDashoffset: '1000'
+  				},
+  				'100%': {
+  					strokeDashoffset: '0'
+  				}
+  			}
+  		},
+  		animation: {
+  			'accordion-down': 'accordion-down 0.2s ease-out',
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'fade-in': 'fade-in 0.5s ease-out',
+  			'fade-in-up': 'fade-in-up 0.6s ease-out',
+  			'scale-in': 'scale-in 0.3s ease-out',
+  			'slide-in-right': 'slide-in-right 0.3s ease-out',
+  			blob: 'blob 8s ease-in-out infinite',
+  			float: 'float 6s ease-in-out infinite',
+  			draw: 'draw 2s ease-out forwards'
+  		},
   		boxShadow: {
   			'2xs': 'var(--shadow-2xs)',
   			xs: 'var(--shadow-xs)',
@@ -131,20 +165,17 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'Montserrat',
+  				'Roboto',
   				'ui-sans-serif',
   				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
-  				'sans-serif'
+  				'sans-serif',
+  				'Apple Color Emoji',
+  				'Segoe UI Emoji',
+  				'Segoe UI Symbol',
+  				'Noto Color Emoji'
   			],
   			serif: [
-  				'Cormorant Garamond',
+  				'Lora',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -153,7 +184,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'IBM Plex Mono',
+  				'Fira Code',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
