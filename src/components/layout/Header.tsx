@@ -45,7 +45,7 @@ export const Header = () => {
         <div className="flex items-center gap-8">
           <Link to="/" className="flex items-center gap-3 group">
             <div className="h-10 w-10 rounded-xl overflow-hidden bg-card shadow-md ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all group-hover:scale-105 dark:bg-card/80">
-              <img alt="GTU Logo" className="h-full w-full object-contain p-0.5 dark:brightness-110 dark:contrast-110" src="https://www.pngegg.com/en/search?q=gtu" />
+              <img alt="GTU Logo" className="h-full w-full object-contain p-0.5 dark:brightness-110 dark:contrast-110" src="/lovable-uploads/bdc99bc9-4820-4911-9a3b-56eb0be2af25.png" />
             </div>
             <span className="font-semibold text-lg hidden sm:inline group-hover:text-primary transition-colors font-serif">Alumni Database</span>
           </Link>
