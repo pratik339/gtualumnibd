@@ -224,7 +224,127 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_secure: {
+        Row: {
+          achievements: string | null
+          branch_id: string | null
+          college_id: string | null
+          company: string | null
+          created_at: string | null
+          current_semester: number | null
+          email: string | null
+          email_visible: boolean | null
+          enrollment_number: string | null
+          expected_passout_year: number | null
+          experience: string | null
+          facebook_url: string | null
+          facebook_visible: boolean | null
+          full_name: string | null
+          high_commission_id: string | null
+          id: string | null
+          job_title: string | null
+          linkedin_url: string | null
+          linkedin_visible: boolean | null
+          location_city: string | null
+          location_country: string | null
+          passout_year: number | null
+          photo_url: string | null
+          scholarship_year: number | null
+          status: Database["public"]["Enums"]["approval_status"] | null
+          updated_at: string | null
+          user_id: string | null
+          user_type: Database["public"]["Enums"]["user_type"] | null
+          whatsapp_number: string | null
+          whatsapp_visible: boolean | null
+        }
+        Insert: {
+          achievements?: string | null
+          branch_id?: string | null
+          college_id?: string | null
+          company?: string | null
+          created_at?: string | null
+          current_semester?: number | null
+          email?: never
+          email_visible?: boolean | null
+          enrollment_number?: never
+          expected_passout_year?: number | null
+          experience?: string | null
+          facebook_url?: never
+          facebook_visible?: boolean | null
+          full_name?: string | null
+          high_commission_id?: string | null
+          id?: string | null
+          job_title?: string | null
+          linkedin_url?: never
+          linkedin_visible?: boolean | null
+          location_city?: string | null
+          location_country?: string | null
+          passout_year?: number | null
+          photo_url?: string | null
+          scholarship_year?: number | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          whatsapp_number?: never
+          whatsapp_visible?: boolean | null
+        }
+        Update: {
+          achievements?: string | null
+          branch_id?: string | null
+          college_id?: string | null
+          company?: string | null
+          created_at?: string | null
+          current_semester?: number | null
+          email?: never
+          email_visible?: boolean | null
+          enrollment_number?: never
+          expected_passout_year?: number | null
+          experience?: string | null
+          facebook_url?: never
+          facebook_visible?: boolean | null
+          full_name?: string | null
+          high_commission_id?: string | null
+          id?: string | null
+          job_title?: string | null
+          linkedin_url?: never
+          linkedin_visible?: boolean | null
+          location_city?: string | null
+          location_country?: string | null
+          passout_year?: number | null
+          photo_url?: string | null
+          scholarship_year?: number | null
+          status?: Database["public"]["Enums"]["approval_status"] | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_type?: Database["public"]["Enums"]["user_type"] | null
+          whatsapp_number?: never
+          whatsapp_visible?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_college_id_fkey"
+            columns: ["college_id"]
+            isOneToOne: false
+            referencedRelation: "colleges"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_high_commission_id_fkey"
+            columns: ["high_commission_id"]
+            isOneToOne: false
+            referencedRelation: "high_commissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {
