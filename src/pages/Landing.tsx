@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { GraduationCap, Users, BookOpen, Shield, BarChart3, Globe, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/layout/Layout';
+import { motion } from 'framer-motion';
+import { PageTransition } from '@/components/ui/page-transition';
 import gtuCampus from '@/assets/gtu-campus.jpg';
 
 export default function Landing() {
@@ -34,6 +36,7 @@ export default function Landing() {
 
   return (
     <Layout>
+      <PageTransition>
       {/* Hero Section with Campus Background */}
       <section className="relative py-20 md:py-32 overflow-hidden">
         {/* Background Image - visible in both themes */}
@@ -58,40 +61,74 @@ export default function Landing() {
         </svg>
         
         <div className="container relative z-10">
-          <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
-            <div className="inline-flex items-center justify-center p-3 bg-primary/10 dark:bg-primary/20 backdrop-blur-sm rounded-full mb-6 border border-primary/20 dark:border-primary/30 artistic-border">
+          <motion.div 
+            className="max-w-3xl mx-auto text-center"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            <motion.div 
+              className="inline-flex items-center justify-center p-3 bg-primary/10 dark:bg-primary/20 backdrop-blur-sm rounded-full mb-6 border border-primary/20 dark:border-primary/30 artistic-border"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <Sparkles className="h-5 w-5 text-primary mr-2 animate-float" />
               <span className="text-sm font-medium text-primary font-serif italic">Gujarat Technological University</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 drop-shadow-sm font-serif">
+            </motion.div>
+            <motion.h1 
+              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 drop-shadow-sm font-serif"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
               GTU Alumni{' '}
               <span className="text-primary sketch-highlight">Database</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground dark:text-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed">
+            </motion.h1>
+            <motion.p 
+              className="text-lg md:text-xl text-muted-foreground dark:text-foreground/80 mb-8 max-w-2xl mx-auto leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
               Connect, collaborate, and grow with the GTU community. Track achievements, 
               explore opportunities, and stay connected with fellow students and alumni.
-            </p>
+            </motion.p>
             
-            {user ? (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 artistic-card">
-                  <Link to="/dashboard">Go to Dashboard</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="backdrop-blur-sm bg-background/50 dark:bg-background/30 hover:scale-105 transition-all border-2">
-                  <Link to="/directory">Browse Directory</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all hover:scale-105 artistic-card">
-                  <Link to="/auth">Get Started</Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="backdrop-blur-sm bg-background/50 dark:bg-background/30 hover:scale-105 transition-all border-2">
-                  <Link to="/auth">Sign In</Link>
-                </Button>
-              </div>
-            )}
-          </div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+            >
+              {user ? (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all artistic-card">
+                      <Link to="/dashboard">Go to Dashboard</Link>
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button asChild variant="outline" size="lg" className="backdrop-blur-sm bg-background/50 dark:bg-background/30 transition-all border-2">
+                      <Link to="/directory">Browse Directory</Link>
+                    </Button>
+                  </motion.div>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all artistic-card">
+                      <Link to="/auth">Get Started</Link>
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button asChild variant="outline" size="lg" className="backdrop-blur-sm bg-background/50 dark:bg-background/30 transition-all border-2">
+                      <Link to="/auth">Sign In</Link>
+                    </Button>
+                  </motion.div>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -231,6 +268,7 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+      </PageTransition>
     </Layout>
   );
 }
