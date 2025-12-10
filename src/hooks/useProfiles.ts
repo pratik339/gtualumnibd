@@ -40,6 +40,7 @@ export interface ProfileWithRelations {
 interface UseProfilesOptions {
   status?: 'pending' | 'approved' | 'rejected';
   userType?: 'alumni' | 'scholar';
+  useSecureView?: boolean;
 }
 
 export const useProfiles = (options: UseProfilesOptions = {}) => {
@@ -48,19 +49,36 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
 
   useEffect(() => {
     fetchProfiles();
-  }, [options.status, options.userType]);
+  }, [options.status, options.userType, options.useSecureView]);
 
   const fetchProfiles = async () => {
     try {
-      let query = supabase
-        .from('profiles')
-        .select(`
-          *,
-          colleges:college_id(id, name, city),
-          branches:branch_id(id, name, code),
-          high_commissions:high_commission_id(id, name, country, type)
-        `)
-        .order('created_at', { ascending: false });
+      // Use secure view for public-facing queries to respect privacy settings
+      const useSecure = options.useSecureView !== false;
+      
+      const buildQuery = () => {
+        if (useSecure) {
+          return supabase
+            .from('profiles_secure')
+            .select(`
+              *,
+              colleges:college_id(id, name, city),
+              branches:branch_id(id, name, code),
+              high_commissions:high_commission_id(id, name, country, type)
+            `);
+        } else {
+          return supabase
+            .from('profiles')
+            .select(`
+              *,
+              colleges:college_id(id, name, city),
+              branches:branch_id(id, name, code),
+              high_commissions:high_commission_id(id, name, country, type)
+            `);
+        }
+      };
+
+      let query = buildQuery().order('created_at', { ascending: false });
 
       if (options.status) {
         query = query.eq('status', options.status);
@@ -73,7 +91,7 @@ export const useProfiles = (options: UseProfilesOptions = {}) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setProfiles((data as ProfileWithRelations[]) || []);
+      setProfiles((data as unknown as ProfileWithRelations[]) || []);
     } catch (error) {
       console.error('Error fetching profiles:', error);
     } finally {
