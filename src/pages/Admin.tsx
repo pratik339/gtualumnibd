@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles } from 'lucide-react';
@@ -16,6 +19,9 @@ export default function Admin() {
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectProfileId, setRejectProfileId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
 
   const approvedCount = allProfiles.filter(p => p.status === 'approved').length;
   const rejectedCount = allProfiles.filter(p => p.status === 'rejected').length;
@@ -38,21 +44,38 @@ export default function Admin() {
     setLoadingId(null);
   };
 
-  const handleReject = async (profileId: string) => {
-    setLoadingId(profileId);
+  const openRejectDialog = (profileId: string) => {
+    setRejectProfileId(profileId);
+    setRejectReason('');
+    setRejectDialogOpen(true);
+  };
+
+  const handleReject = async () => {
+    if (!rejectProfileId) return;
+    
+    setLoadingId(rejectProfileId);
     const { error } = await supabase
       .from('profiles')
-      .update({ status: 'rejected' })
-      .eq('id', profileId);
+      .update({ 
+        status: 'rejected',
+        rejection_reason: rejectReason.trim() || null
+      })
+      .eq('id', rejectProfileId);
 
     if (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'Profile rejected', description: 'The profile has been rejected.' });
+      toast({ 
+        title: 'Profile rejected', 
+        description: rejectReason ? 'Feedback has been sent to the user.' : 'The profile has been rejected.' 
+      });
       refetch();
       refetchPending();
     }
     setLoadingId(null);
+    setRejectDialogOpen(false);
+    setRejectProfileId(null);
+    setRejectReason('');
   };
 
   const handleApproveAll = async () => {
@@ -216,7 +239,7 @@ export default function Admin() {
                             <Button 
                               size="sm" 
                               variant="destructive" 
-                              onClick={() => handleReject(profile.id)}
+                              onClick={() => openRejectDialog(profile.id)}
                               disabled={loadingId === profile.id}
                               className="gap-1"
                             >
@@ -278,6 +301,42 @@ export default function Admin() {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Reject Dialog */}
+          <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reject Profile</DialogTitle>
+                <DialogDescription>
+                  Provide feedback to help the user understand why their profile is being rejected.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="rejection-reason">Rejection Reason (Optional)</Label>
+                  <Textarea
+                    id="rejection-reason"
+                    placeholder="e.g., Profile photo is missing, incomplete work experience details, etc."
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleReject}
+                  disabled={loadingId === rejectProfileId}
+                >
+                  {loadingId === rejectProfileId ? 'Rejecting...' : 'Reject Profile'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </Layout>
     </ProtectedRoute>
