@@ -17,8 +17,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, Upload, Save, ArrowLeft } from 'lucide-react';
+import { Loader2, Upload, Save, ArrowLeft, XCircle, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema } from '@/lib/validation';
 
 export default function ProfileEdit() {
@@ -260,6 +261,27 @@ export default function ProfileEdit() {
               Back to Dashboard
             </Button>
           </Link>
+
+          {profile.status === 'rejected' && (
+            <Alert variant="destructive" className="mb-6">
+              <XCircle className="h-5 w-5" />
+              <AlertTitle>Profile Rejected</AlertTitle>
+              <AlertDescription>
+                <p className="mb-2">Your profile was not approved. Please review the feedback below and make the necessary changes.</p>
+                {profile.rejection_reason && (
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 mt-2">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm mb-1">Admin Feedback:</p>
+                        <p className="text-sm">{profile.rejection_reason}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
 
           <Card>
             <CardHeader>

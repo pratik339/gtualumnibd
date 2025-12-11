@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Users, GraduationCap, BookOpen, Clock } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, Clock, XCircle, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function Dashboard() {
   const { profile, loading } = useProfile();
@@ -37,12 +38,12 @@ export default function Dashboard() {
       <Layout>
         <div className="container py-8">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold">Welcome{profile?.full_name ? `, ${profile.full_name}` : ''}!</h1>
+            <h1 className="text-3xl font-bold font-serif">Welcome{profile?.full_name ? `, ${profile.full_name}` : ''}!</h1>
             <p className="text-muted-foreground">Your GTU Alumni Database Dashboard</p>
           </div>
 
           {!profile && (
-            <Card className="mb-8 border-primary">
+            <Card className="mb-8 border-primary artistic-card">
               <CardContent className="py-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -58,17 +59,43 @@ export default function Dashboard() {
           )}
 
           {profile && profile.status === 'pending' && (
-            <Card className="mb-8 border-yellow-500">
+            <Card className="mb-8 border-yellow-500 bg-yellow-500/5">
               <CardContent className="py-6">
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 text-yellow-500" />
                   <div>
                     <h3 className="font-semibold">Profile Pending Approval</h3>
-                    <p className="text-sm text-muted-foreground">Your profile is being reviewed by an admin</p>
+                    <p className="text-sm text-muted-foreground">Your profile is being reviewed by an admin. You'll be notified once it's approved.</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {profile && profile.status === 'rejected' && (
+            <Alert variant="destructive" className="mb-8">
+              <XCircle className="h-5 w-5" />
+              <AlertTitle className="flex items-center gap-2">
+                Profile Rejected
+              </AlertTitle>
+              <AlertDescription className="mt-2">
+                <p className="mb-3">Your profile was not approved. Please review the feedback below and update your profile accordingly.</p>
+                {profile.rejection_reason && (
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mt-2">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm mb-1">Admin Feedback:</p>
+                        <p className="text-sm">{profile.rejection_reason}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <Button asChild className="mt-4" size="sm">
+                  <Link to="/profile/edit">Edit Profile</Link>
+                </Button>
+              </AlertDescription>
+            </Alert>
           )}
 
           {profile && (
