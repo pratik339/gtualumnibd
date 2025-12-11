@@ -16,6 +16,7 @@ import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { Loader2, GraduationCap, BookOpen, Upload } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema, validateImageFile } from '@/lib/validation';
 
 type UserType = 'alumni' | 'student';
 
@@ -61,10 +62,11 @@ export default function Register() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
+      const validation = validateImageFile(file);
+      if (!validation.valid) {
         toast({
-          title: 'File too large',
-          description: 'Please select an image under 5MB.',
+          title: 'Invalid file',
+          description: validation.error,
           variant: 'destructive',
         });
         return;
@@ -116,6 +118,39 @@ export default function Register() {
         variant: 'destructive',
       });
       return;
+    }
+
+    // Validate URLs before submission
+    if (formData.linkedin_url) {
+      const result = linkedinUrlSchema.safeParse(formData.linkedin_url);
+      if (!result.success) {
+        toast({ title: 'Invalid LinkedIn URL', description: 'Please enter a valid LinkedIn URL', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.facebook_url) {
+      const result = facebookUrlSchema.safeParse(formData.facebook_url);
+      if (!result.success) {
+        toast({ title: 'Invalid Facebook URL', description: 'Please enter a valid Facebook URL', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.whatsapp_number) {
+      const result = whatsappNumberSchema.safeParse(formData.whatsapp_number);
+      if (!result.success) {
+        toast({ title: 'Invalid WhatsApp Number', description: 'Please enter a valid phone number with country code', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.email) {
+      const result = emailSchema.safeParse(formData.email);
+      if (!result.success) {
+        toast({ title: 'Invalid Email', description: 'Please enter a valid email address', variant: 'destructive' });
+        return;
+      }
     }
 
     setLoading(true);
