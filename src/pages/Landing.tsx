@@ -7,6 +7,8 @@ import { Layout } from '@/components/layout/Layout';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
 import gtuCampus from '@/assets/gtu-campus.jpg';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Hand-drawn SVG decorations
 const ScribbleCircle = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
@@ -60,8 +62,47 @@ const DoodleArrow = ({ className }: { className?: string }) => (
   </svg>
 );
 
+interface Stats {
+  alumniCount: number;
+  studentCount: number;
+  countriesCount: number;
+  totalCount: number;
+}
+
 export default function Landing() {
   const { user } = useAuth();
+  const [stats, setStats] = useState<Stats>({ alumniCount: 0, studentCount: 0, countriesCount: 0, totalCount: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch approved profiles for stats
+        const { data: profiles, error } = await supabase
+          .from('profiles')
+          .select('user_type, location_country')
+          .eq('status', 'approved');
+
+        if (error) throw error;
+
+        if (profiles) {
+          const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
+          const studentCount = profiles.filter(p => p.user_type === 'scholar' || p.user_type === 'student').length;
+          const countries = new Set(profiles.map(p => p.location_country).filter(Boolean));
+          
+          setStats({
+            alumniCount,
+            studentCount,
+            countriesCount: countries.size,
+            totalCount: profiles.length,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const features = [
     {
@@ -494,10 +535,10 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             {[
-              { label: 'Alumni Network', value: '500+', icon: '🎓' },
-              { label: 'Countries', value: '25+', icon: '🌍' },
-              { label: 'Students', value: '200+', icon: '📚' },
-              { label: 'Connections', value: '1000+', icon: '🤝' },
+              { label: 'Alumni Network', value: stats.alumniCount || 0, icon: '🎓' },
+              { label: 'Countries', value: stats.countriesCount || 0, icon: '🌍' },
+              { label: 'Students', value: stats.studentCount || 0, icon: '📚' },
+              { label: 'Total Members', value: stats.totalCount || 0, icon: '🤝' },
             ].map((stat, index) => (
               <motion.div 
                 key={index} 
