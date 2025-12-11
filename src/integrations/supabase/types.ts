@@ -105,6 +105,7 @@ export type Database = {
           location_country: string | null
           passout_year: number | null
           photo_url: string | null
+          rejection_reason: string | null
           scholarship_year: number | null
           status: Database["public"]["Enums"]["approval_status"]
           updated_at: string
@@ -137,6 +138,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"]
           updated_at?: string
@@ -169,6 +171,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"]
           updated_at?: string
@@ -249,6 +252,7 @@ export type Database = {
           location_country: string | null
           passout_year: number | null
           photo_url: string | null
+          rejection_reason: string | null
           scholarship_year: number | null
           status: Database["public"]["Enums"]["approval_status"] | null
           updated_at: string | null
@@ -281,6 +285,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"] | null
           updated_at?: string | null
@@ -313,6 +318,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"] | null
           updated_at?: string | null
