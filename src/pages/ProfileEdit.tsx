@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, Upload, Save, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema } from '@/lib/validation';
 
 export default function ProfileEdit() {
   const { user } = useAuth();
@@ -132,6 +133,39 @@ export default function ProfileEdit() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile) return;
+
+    // Validate URLs before submission
+    if (formData.linkedin_url) {
+      const result = linkedinUrlSchema.safeParse(formData.linkedin_url);
+      if (!result.success) {
+        toast({ title: 'Invalid LinkedIn URL', description: 'Please enter a valid LinkedIn URL', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.facebook_url) {
+      const result = facebookUrlSchema.safeParse(formData.facebook_url);
+      if (!result.success) {
+        toast({ title: 'Invalid Facebook URL', description: 'Please enter a valid Facebook URL', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.whatsapp_number) {
+      const result = whatsappNumberSchema.safeParse(formData.whatsapp_number);
+      if (!result.success) {
+        toast({ title: 'Invalid WhatsApp Number', description: 'Please enter a valid phone number with country code', variant: 'destructive' });
+        return;
+      }
+    }
+
+    if (formData.email) {
+      const result = emailSchema.safeParse(formData.email);
+      if (!result.success) {
+        toast({ title: 'Invalid Email', description: 'Please enter a valid email address', variant: 'destructive' });
+        return;
+      }
+    }
 
     setSaving(true);
     try {
