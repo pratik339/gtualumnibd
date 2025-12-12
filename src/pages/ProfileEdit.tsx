@@ -2,7 +2,7 @@ import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
-import { useColleges } from '@/hooks/useColleges';
+import { CollegeSelector } from '@/components/CollegeSelector';
 import { useBranches } from '@/hooks/useBranches';
 import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,7 +25,6 @@ import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema
 export default function ProfileEdit() {
   const { user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useProfile();
-  const { colleges } = useColleges();
   const { branches } = useBranches();
   const { highCommissions } = useHighCommissions();
   const { toast } = useToast();
@@ -342,22 +341,11 @@ export default function ProfileEdit() {
 
                 {/* Education */}
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="college">College</Label>
-                    <Select
-                      value={formData.college_id}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, college_id: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select college" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        {colleges.map((college) => (
-                          <SelectItem key={college.id} value={college.id}>{college.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <CollegeSelector
+                    value={formData.college_id}
+                    onChange={(value) => setFormData(prev => ({ ...prev, college_id: value }))}
+                    label="College"
+                  />
                   <div className="space-y-2">
                     <Label htmlFor="branch">Branch</Label>
                     <Select
