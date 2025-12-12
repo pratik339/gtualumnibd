@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useBranches } from '@/hooks/useBranches';
-import { useColleges } from '@/hooks/useColleges';
+import { CollegeSelector } from '@/components/CollegeSelector';
 import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { Loader2, GraduationCap, BookOpen, Upload } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -25,7 +25,6 @@ export default function Register() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { branches } = useBranches();
-  const { colleges } = useColleges();
   const { highCommissions } = useHighCommissions();
 
   const [loading, setLoading] = useState(false);
@@ -340,24 +339,10 @@ export default function Register() {
                   <CardTitle>Academic Information</CardTitle>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Affiliated College</Label>
-                    <Select
-                      value={formData.college_id}
-                      onValueChange={(value) => setFormData({ ...formData, college_id: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select college" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        {colleges.map((college) => (
-                          <SelectItem key={college.id} value={college.id}>
-                            {college.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <CollegeSelector
+                    value={formData.college_id}
+                    onChange={(value) => setFormData({ ...formData, college_id: value })}
+                  />
 
                   <div>
                     <Label>Branch / Discipline</Label>
