@@ -560,33 +560,61 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-10 bg-card/50 backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="10" cy="10" r="1" fill="currentColor" className="text-primary"/>
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#dots)"/>
-          </svg>
-        </div>
+      {/* Footer - GTU Official Style */}
+      <footer className="bg-secondary text-secondary-foreground py-12 relative overflow-hidden">
         <div className="container relative">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <motion.div 
-              className="flex items-center gap-3"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center artistic-card">
-                <span className="text-primary-foreground font-bold text-sm">GTU</span>
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-12 w-12 rounded-lg bg-background/10 flex items-center justify-center overflow-hidden">
+                  <img 
+                    alt="GTU Logo" 
+                    className="h-full w-full object-contain p-1" 
+                    src="/lovable-uploads/bdc99bc9-4820-4911-9a3b-56eb0be2af25.png" 
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold">Gujarat Technological University</h3>
+                  <p className="text-xs text-secondary-foreground/70">International Innovative University</p>
+                </div>
               </div>
-              <span className="font-medium font-serif text-lg">GTU Alumni Database</span>
-            </motion.div>
-            <p className="text-sm text-muted-foreground flex items-center gap-2">
-              Made with <Heart className="h-4 w-4 text-primary fill-primary animate-pulse" /> 
-              <span>© {new Date().getFullYear()} Gujarat Technological University</span>
-            </p>
+              <p className="text-sm text-secondary-foreground/80">
+                Accredited with A+ grade by NAAC
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Contact Us</h4>
+              <div className="space-y-2 text-sm text-secondary-foreground/80">
+                <p>Gujarat Technological University</p>
+                <p>Nr. Vishwakarma Government Engineering College</p>
+                <p>Nr. Visat Three Roads, Sabarmati - Koba Highway</p>
+                <p>Chandkheda, Ahmedabad - 382424</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Quick Links</h4>
+              <div className="space-y-2 text-sm">
+                <a href="https://www.gtu.ac.in" target="_blank" rel="noopener noreferrer" className="block text-secondary-foreground/80 hover:text-secondary-foreground transition-colors">
+                  GTU Official Website
+                </a>
+                <Link to="/directory" className="block text-secondary-foreground/80 hover:text-secondary-foreground transition-colors">
+                  Alumni Directory
+                </Link>
+                <Link to="/analytics" className="block text-secondary-foreground/80 hover:text-secondary-foreground transition-colors">
+                  Analytics Dashboard
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-secondary-foreground/20 pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-secondary-foreground/70">
+                © {new Date().getFullYear()} Gujarat Technological University. All rights reserved.
+              </p>
+              <p className="text-sm text-secondary-foreground/70 flex items-center gap-2">
+                Made with <Heart className="h-4 w-4 text-primary fill-primary animate-pulse" /> for GTU Community
+              </p>
+            </div>
           </div>
         </div>
       </footer>
