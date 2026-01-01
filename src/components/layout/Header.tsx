@@ -34,23 +34,23 @@ export const Header = () => {
   }: {
     mobile?: boolean;
   }) => <>
-      <Link to="/" className={`flex items-center gap-1 transition-all ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 px-3 py-1.5 rounded'}`}>
+      <Link to="/" className={`flex items-center gap-1 transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
         <Home className="h-4 w-4" />
         Home
       </Link>
-      <Link to="/directory" className={`transition-all ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 px-3 py-1.5 rounded'}`}>
+      <Link to="/directory" className={`transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
         Directory
       </Link>
-      <Link to="/analytics" className={`transition-all ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 px-3 py-1.5 rounded'}`}>
+      <Link to="/analytics" className={`transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
         Analytics
       </Link>
-      {isAdmin && <Link to="/admin" className={`transition-all ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 px-3 py-1.5 rounded'}`}>
+      {isAdmin && <Link to="/admin" className={`transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
           Admin
         </Link>}
     </>;
-  return <header className="sticky top-0 z-50 w-full">
+  return <header className="sticky top-0 z-50 w-full shadow-md">
       {/* Top bar - GTU Navy Blue */}
-      <div className="bg-secondary text-secondary-foreground">
+      <div className="bg-[hsl(220,50%,15%)] text-white">
         <div className="container flex h-10 items-center justify-end text-sm">
           <div className="flex items-center gap-4">
             <motion.div whileHover={{
@@ -58,13 +58,13 @@ export const Header = () => {
           }} whileTap={{
             scale: 0.9
           }}>
-              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="h-8 w-8 text-secondary-foreground hover:bg-secondary-foreground/10">
+              <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="h-8 w-8 text-white hover:bg-white/10">
                 <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">Toggle theme</span>
               </Button>
             </motion.div>
-            {!user && <Button asChild size="sm" variant="ghost" className="text-secondary-foreground hover:bg-secondary-foreground/10 h-7">
+            {!user && <Button asChild size="sm" variant="ghost" className="text-white hover:bg-white/10 h-7 font-medium">
                 <Link to="/auth">Sign In</Link>
               </Button>}
           </div>
@@ -72,10 +72,10 @@ export const Header = () => {
       </div>
 
       {/* Main header with logo and university name */}
-      <div className="bg-background border-b">
+      <div className="bg-card border-b border-border shadow-sm">
         <div className="container flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center gap-4 group">
-            <motion.div className="h-14 w-14 rounded-lg overflow-hidden bg-card shadow-md ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all" whileHover={{
+            <motion.div className="h-14 w-14 rounded-lg overflow-hidden bg-white shadow-md ring-2 ring-primary/30 group-hover:ring-primary/50 transition-all" whileHover={{
             scale: 1.05
           }} whileTap={{
             scale: 0.95
@@ -83,10 +83,10 @@ export const Header = () => {
               <img alt="GTU Logo" className="h-full w-full object-contain p-0.5" src="/lovable-uploads/bdc99bc9-4820-4911-9a3b-56eb0be2af25.png" />
             </motion.div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg sm:text-xl text-foreground uppercase tracking-wide">
+              <span className="font-bold text-lg sm:text-xl text-[hsl(220,50%,15%)] dark:text-foreground uppercase tracking-wide">
                 Gujarat Technological University
               </span>
-              <span className="text-xs sm:text-sm text-primary font-medium">Alumni Database for Bangladeshi students</span>
+              <span className="text-xs sm:text-sm text-primary font-semibold">Alumni Database for Bangladeshi students</span>
             </div>
           </Link>
 
@@ -140,7 +140,7 @@ export const Header = () => {
       </div>
 
       {/* Navigation bar - GTU Red */}
-      {user && <motion.nav className="bg-primary text-primary-foreground shadow-md" initial={{
+      {user && <motion.nav className="bg-[hsl(350,70%,45%)] text-white shadow-lg" initial={{
       y: -20,
       opacity: 0
     }} animate={{
