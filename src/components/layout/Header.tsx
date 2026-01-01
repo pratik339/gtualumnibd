@@ -86,9 +86,7 @@ export const Header = () => {
               <span className="font-bold text-lg sm:text-xl text-foreground uppercase tracking-wide">
                 Gujarat Technological University
               </span>
-              <span className="text-xs sm:text-sm text-primary font-medium">
-                Alumni Database
-              </span>
+              <span className="text-xs sm:text-sm text-primary font-medium">Alumni Database for Bangladeshi students</span>
             </div>
           </Link>
 
