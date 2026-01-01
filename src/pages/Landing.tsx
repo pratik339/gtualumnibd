@@ -139,8 +139,8 @@ export default function Landing() {
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
           backgroundImage: `url(${gtuCampus})`
         }} />
-        {/* Theme-adaptive overlay for visibility */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background dark:from-background/90 dark:via-background/80 dark:to-background" />
+        {/* Theme-adaptive overlay for visibility - stronger in light mode */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/85 via-white/75 to-white dark:from-background/90 dark:via-background/80 dark:to-background" />
         
         {/* Artistic decorative elements - animated blobs */}
         <motion.div className="absolute top-20 left-10 w-72 h-72 bg-primary/30 dark:bg-primary/20 blob-shape blur-3xl" animate={{
@@ -214,7 +214,7 @@ export default function Landing() {
               }} />
             </motion.div>
             
-            <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 drop-shadow-sm font-serif relative" variants={itemVariants}>
+            <motion.h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 drop-shadow-sm font-serif relative text-[hsl(220,50%,15%)] dark:text-foreground" variants={itemVariants}>
               <span className="relative inline-block">
                 GTU Alumni
                 <motion.span className="absolute -top-2 -right-4 text-primary" animate={{
@@ -233,7 +233,7 @@ export default function Landing() {
               </span>
             </motion.h1>
             
-            <motion.p className="text-lg md:text-xl text-muted-foreground dark:text-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed" variants={itemVariants}>
+            <motion.p className="text-lg md:text-xl text-[hsl(220,30%,35%)] dark:text-foreground/80 mb-10 max-w-2xl mx-auto leading-relaxed font-medium" variants={itemVariants}>
               Connect, collaborate, and grow with the GTU community. Track achievements, 
               explore opportunities, and stay connected with fellow students and alumni.
             </motion.p>
@@ -351,10 +351,10 @@ export default function Landing() {
           }} transition={{
             duration: 0.6
           }}>
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-serif">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 font-serif text-[hsl(220,50%,15%)] dark:text-foreground">
                 <span className="hand-drawn-underline">Join as</span>
               </h2>
-              <p className="text-muted-foreground text-center mb-14 max-w-lg mx-auto text-lg">
+              <p className="text-[hsl(220,30%,40%)] dark:text-muted-foreground text-center mb-14 max-w-lg mx-auto text-lg">
                 Select your role to get started with the GTU Alumni Database
               </p>
             </motion.div>
