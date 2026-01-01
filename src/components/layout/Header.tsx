@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Moon, Sun, Menu, LogOut, User, LayoutDashboard, Phone, Mail, Home } from 'lucide-react';
+import { Moon, Sun, Menu, LogOut, User, LayoutDashboard, Home } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -49,19 +49,9 @@ export const Header = () => {
         </Link>}
     </>;
   return <header className="sticky top-0 z-50 w-full">
-      {/* Top bar - GTU Navy Blue with contact info */}
+      {/* Top bar - GTU Navy Blue */}
       <div className="bg-secondary text-secondary-foreground">
-        <div className="container flex h-10 items-center justify-between text-sm">
-          <div className="flex items-center gap-6">
-            <span className="hidden sm:flex items-center gap-1.5">
-            <Phone className="h-3.5 w-3.5" />
-              079-23267521/570
-            </span>
-            <span className="hidden md:flex items-center gap-1.5">
-            <Mail className="h-3.5 w-3.5" />
-              info@gtu.ac.in
-            </span>
-          </div>
+        <div className="container flex h-10 items-center justify-end text-sm">
           <div className="flex items-center gap-4">
             <motion.div whileHover={{
             scale: 1.1
