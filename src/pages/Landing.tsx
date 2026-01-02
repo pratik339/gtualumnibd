@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, Users, BookOpen, Shield, BarChart3, Globe, Sparkles, Star, Heart, Zap } from 'lucide-react';
+import { GraduationCap, Users, BookOpen, Shield, BarChart3, Globe, Sparkles, Star, Heart, Zap, MapPin } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/layout/Layout';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import gtuCampus from '@/assets/gtu-campus.jpg';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import AlumniWorldMap from '@/components/AlumniWorldMap';
 
 // Hand-drawn SVG decorations
 const ScribbleCircle = ({
@@ -560,6 +561,54 @@ export default function Landing() {
                 <div className="text-3xl md:text-4xl font-bold text-primary font-serif">{stat.value}</div>
                 <div className="text-muted-foreground text-sm mt-1">{stat.label}</div>
               </motion.div>)}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Alumni World Map Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
+        
+        {/* Decorative elements */}
+        <motion.div 
+          className="absolute -top-10 -left-10 w-40 h-40 border-2 border-dashed border-primary/10 rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div 
+          className="absolute -bottom-20 -right-20 w-60 h-60 border-2 border-dashed border-primary/5 rounded-full"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        />
+        
+        <div className="container relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Live Updates</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
+              <span className="hand-drawn-underline">Our Global Alumni Network</span>
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+              Discover where GTU alumni are making their mark across the world. 
+              The map updates in real-time as new members join our community.
+            </p>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <AlumniWorldMap />
           </motion.div>
         </div>
       </section>
