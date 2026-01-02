@@ -1,190 +1,82 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useState, useEffect } from 'react';
 import { useAlumniLocations } from '@/hooks/useAlumniLocations';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, MapPin, Users } from 'lucide-react';
+import { Globe, Users, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
+// Country coordinates mapped to SVG viewBox (simplified world map projection)
+const countryPositions: Record<string, { x: number; y: number }> = {
+  'India': { x: 680, y: 280 },
+  'United States': { x: 180, y: 220 },
+  'USA': { x: 180, y: 220 },
+  'United Kingdom': { x: 450, y: 170 },
+  'UK': { x: 450, y: 170 },
+  'Canada': { x: 180, y: 150 },
+  'Australia': { x: 820, y: 420 },
+  'Germany': { x: 490, y: 180 },
+  'France': { x: 465, y: 195 },
+  'Singapore': { x: 755, y: 340 },
+  'UAE': { x: 600, y: 270 },
+  'United Arab Emirates': { x: 600, y: 270 },
+  'Dubai': { x: 600, y: 270 },
+  'Qatar': { x: 590, y: 265 },
+  'Saudi Arabia': { x: 575, y: 265 },
+  'Japan': { x: 860, y: 215 },
+  'South Korea': { x: 835, y: 215 },
+  'China': { x: 770, y: 230 },
+  'Netherlands': { x: 475, y: 175 },
+  'Switzerland': { x: 480, y: 190 },
+  'Ireland': { x: 435, y: 165 },
+  'New Zealand': { x: 910, y: 460 },
+  'South Africa': { x: 530, y: 430 },
+  'Brazil': { x: 300, y: 380 },
+  'Mexico': { x: 160, y: 270 },
+  'Spain': { x: 450, y: 210 },
+  'Italy': { x: 495, y: 205 },
+  'Sweden': { x: 505, y: 135 },
+  'Norway': { x: 490, y: 125 },
+  'Denmark': { x: 485, y: 160 },
+  'Finland': { x: 530, y: 125 },
+  'Poland': { x: 515, y: 175 },
+  'Belgium': { x: 470, y: 180 },
+  'Austria': { x: 500, y: 190 },
+  'Malaysia': { x: 755, y: 335 },
+  'Thailand': { x: 745, y: 300 },
+  'Indonesia': { x: 780, y: 360 },
+  'Philippines': { x: 810, y: 300 },
+  'Vietnam': { x: 760, y: 295 },
+  'Russia': { x: 650, y: 140 },
+  'Kenya': { x: 560, y: 350 },
+  'Nigeria': { x: 485, y: 320 },
+  'Egypt': { x: 545, y: 255 },
+  'Israel': { x: 555, y: 245 },
+  'Turkey': { x: 545, y: 215 },
+  'Pakistan': { x: 645, y: 260 },
+  'Bangladesh': { x: 710, y: 275 },
+  'Sri Lanka': { x: 685, y: 325 },
+  'Nepal': { x: 690, y: 260 },
+  'Oman': { x: 610, y: 280 },
+  'Kuwait': { x: 585, y: 255 },
+  'Bahrain': { x: 590, y: 260 },
+};
 
 const AlumniWorldMap = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const { locations, loading, totalAlumni } = useAlumniLocations();
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [tokenInput, setTokenInput] = useState('');
-  const [mapReady, setMapReady] = useState(false);
+  const [hoveredLocation, setHoveredLocation] = useState<string | null>(null);
 
-  // Try to get token from localStorage
-  useEffect(() => {
-    const savedToken = localStorage.getItem('mapbox_token');
-    if (savedToken) {
-      setMapboxToken(savedToken);
-    }
-  }, []);
-
-  const handleTokenSubmit = () => {
-    if (tokenInput.trim()) {
-      localStorage.setItem('mapbox_token', tokenInput.trim());
-      setMapboxToken(tokenInput.trim());
-    }
+  // Calculate marker size based on count
+  const getMarkerSize = (count: number) => {
+    if (count >= 50) return 16;
+    if (count >= 20) return 13;
+    if (count >= 10) return 10;
+    if (count >= 5) return 8;
+    return 6;
   };
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
-
-    mapboxgl.accessToken = mapboxToken;
-
-    try {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/dark-v11',
-        projection: 'globe',
-        zoom: 1.5,
-        center: [78, 20], // Center on India
-        pitch: 20,
-      });
-
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: true,
-        }),
-        'top-right'
-      );
-
-      map.current.scrollZoom.disable();
-
-      map.current.on('style.load', () => {
-        map.current?.setFog({
-          color: 'rgb(20, 20, 30)',
-          'high-color': 'rgb(40, 40, 60)',
-          'horizon-blend': 0.2,
-        });
-        setMapReady(true);
-      });
-
-      // Slow rotation animation
-      const secondsPerRevolution = 240;
-      let userInteracting = false;
-
-      function spinGlobe() {
-        if (!map.current) return;
-        const zoom = map.current.getZoom();
-        if (!userInteracting && zoom < 3) {
-          const center = map.current.getCenter();
-          center.lng -= 360 / secondsPerRevolution;
-          map.current.easeTo({ center, duration: 1000, easing: (n) => n });
-        }
-      }
-
-      map.current.on('mousedown', () => { userInteracting = true; });
-      map.current.on('mouseup', () => { userInteracting = false; spinGlobe(); });
-      map.current.on('touchend', () => { userInteracting = false; spinGlobe(); });
-      map.current.on('moveend', spinGlobe);
-
-      spinGlobe();
-
-    } catch (error) {
-      console.error('Error initializing map:', error);
-    }
-
-    return () => {
-      map.current?.remove();
-    };
-  }, [mapboxToken]);
-
-  // Add markers for alumni locations
-  useEffect(() => {
-    if (!map.current || !mapReady || locations.length === 0) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    // Add new markers
-    locations.forEach(location => {
-      // Create custom marker element
-      const el = document.createElement('div');
-      el.className = 'alumni-marker';
-      el.innerHTML = `
-        <div class="relative group cursor-pointer">
-          <div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-xs font-bold shadow-lg transform transition-transform hover:scale-125" style="background-color: hsl(350, 70%, 50%);">
-            ${location.count > 99 ? '99+' : location.count}
-          </div>
-          <div class="absolute w-3 h-3 rounded-full animate-ping opacity-75" style="background-color: hsl(350, 70%, 50%); top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: -1;"></div>
-        </div>
-      `;
-
-      // Create popup
-      const popup = new mapboxgl.Popup({
-        offset: 25,
-        closeButton: false,
-        closeOnClick: false,
-      }).setHTML(`
-        <div style="padding: 8px; min-width: 120px;">
-          <div style="font-weight: 600; font-size: 14px; color: #333;">${location.country}</div>
-          ${location.city ? `<div style="font-size: 12px; color: #666;">${location.city}</div>` : ''}
-          <div style="font-size: 13px; color: hsl(350, 70%, 50%); font-weight: 500; margin-top: 4px;">
-            ${location.count} ${location.count === 1 ? 'Alumni' : 'Alumni'}
-          </div>
-        </div>
-      `);
-
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(location.coordinates)
-        .setPopup(popup)
-        .addTo(map.current!);
-
-      // Show popup on hover
-      el.addEventListener('mouseenter', () => marker.togglePopup());
-      el.addEventListener('mouseleave', () => marker.togglePopup());
-
-      markersRef.current.push(marker);
-    });
-  }, [locations, mapReady]);
-
-  if (!mapboxToken) {
-    return (
-      <Card className="w-full bg-card/50 backdrop-blur-sm border-2 border-dashed">
-        <CardHeader className="text-center">
-          <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <Globe className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="font-serif text-2xl">Alumni World Map</CardTitle>
-          <p className="text-muted-foreground">
-            Enter your Mapbox public token to view the interactive alumni map
-          </p>
-        </CardHeader>
-        <CardContent className="max-w-md mx-auto space-y-4">
-          <Input
-            type="text"
-            placeholder="pk.eyJ1Ijoi..."
-            value={tokenInput}
-            onChange={(e) => setTokenInput(e.target.value)}
-            className="w-full"
-          />
-          <Button onClick={handleTokenSubmit} className="w-full">
-            <MapPin className="w-4 h-4 mr-2" />
-            Load Map
-          </Button>
-          <p className="text-xs text-muted-foreground text-center">
-            Get your free public token from{' '}
-            <a 
-              href="https://mapbox.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              mapbox.com
-            </a>
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="relative w-full">
@@ -206,23 +98,239 @@ const AlumniWorldMap = () => {
       </motion.div>
 
       {/* Map container */}
-      <div 
-        ref={mapContainer} 
-        className="w-full h-[500px] rounded-xl overflow-hidden shadow-2xl border-2 border-border"
-      />
+      <div className="w-full h-[500px] rounded-xl overflow-hidden shadow-2xl border-2 border-border bg-[hsl(220,30%,12%)] dark:bg-[hsl(220,30%,8%)] relative">
+        <svg 
+          viewBox="0 0 1000 500" 
+          className="w-full h-full"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {/* World map simplified paths */}
+          <defs>
+            <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(220, 30%, 20%)" />
+              <stop offset="100%" stopColor="hsl(220, 30%, 15%)" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          {/* Ocean background */}
+          <rect width="1000" height="500" fill="url(#mapGradient)" />
+          
+          {/* Simplified continent outlines */}
+          {/* North America */}
+          <path
+            d="M80,100 Q100,80 150,90 Q200,85 250,100 Q280,90 300,120 Q290,150 280,180 Q260,200 240,220 Q220,260 180,280 Q140,300 100,280 Q80,250 90,220 Q70,180 80,140 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* South America */}
+          <path
+            d="M220,300 Q260,290 280,320 Q300,360 310,400 Q300,450 280,480 Q250,490 230,470 Q200,430 210,380 Q200,340 220,300 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* Europe */}
+          <path
+            d="M420,120 Q450,100 480,110 Q520,100 550,120 Q560,150 540,180 Q510,200 470,200 Q440,190 420,170 Q410,140 420,120 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* Africa */}
+          <path
+            d="M450,220 Q500,210 540,230 Q580,260 590,320 Q580,380 550,420 Q510,450 470,430 Q440,390 450,340 Q430,280 450,220 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* Asia */}
+          <path
+            d="M560,100 Q620,80 700,90 Q780,100 850,140 Q880,180 870,230 Q850,280 800,300 Q740,320 680,300 Q620,280 580,240 Q550,190 560,140 Q555,120 560,100 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* India subcontinent */}
+          <path
+            d="M640,240 Q680,230 710,260 Q720,300 700,340 Q670,360 640,340 Q620,300 640,240 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* Australia */}
+          <path
+            d="M780,380 Q830,360 880,380 Q910,420 890,460 Q850,480 800,470 Q760,450 770,410 Q765,390 780,380 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
+          {/* Japan */}
+          <path
+            d="M850,180 Q870,170 880,190 Q885,220 870,240 Q855,250 850,230 Q845,200 850,180 Z"
+            fill="hsl(220, 20%, 30%)"
+            stroke="hsl(220, 20%, 40%)"
+            strokeWidth="0.5"
+            opacity="0.8"
+          />
 
-      {/* Loading overlay */}
-      {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm rounded-xl">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            <span className="text-sm text-muted-foreground">Loading alumni locations...</span>
+          {/* Grid lines */}
+          {[...Array(9)].map((_, i) => (
+            <line
+              key={`h-${i}`}
+              x1="0"
+              y1={(i + 1) * 50}
+              x2="1000"
+              y2={(i + 1) * 50}
+              stroke="hsl(220, 30%, 25%)"
+              strokeWidth="0.3"
+              strokeDasharray="5,5"
+              opacity="0.3"
+            />
+          ))}
+          {[...Array(19)].map((_, i) => (
+            <line
+              key={`v-${i}`}
+              x1={(i + 1) * 50}
+              y1="0"
+              x2={(i + 1) * 50}
+              y2="500"
+              stroke="hsl(220, 30%, 25%)"
+              strokeWidth="0.3"
+              strokeDasharray="5,5"
+              opacity="0.3"
+            />
+          ))}
+
+          {/* Alumni location markers */}
+          <TooltipProvider>
+            {locations.map((location, index) => {
+              const pos = countryPositions[location.country];
+              if (!pos) return null;
+              
+              const size = getMarkerSize(location.count);
+              
+              return (
+                <Tooltip key={location.country}>
+                  <TooltipTrigger asChild>
+                    <g
+                      onMouseEnter={() => setHoveredLocation(location.country)}
+                      onMouseLeave={() => setHoveredLocation(null)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {/* Pulse animation */}
+                      <motion.circle
+                        cx={pos.x}
+                        cy={pos.y}
+                        r={size + 4}
+                        fill="hsl(350, 70%, 50%)"
+                        opacity={0.3}
+                        initial={{ scale: 1, opacity: 0.3 }}
+                        animate={{ 
+                          scale: [1, 1.5, 1],
+                          opacity: [0.3, 0, 0.3]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: index * 0.2
+                        }}
+                      />
+                      {/* Main marker */}
+                      <motion.circle
+                        cx={pos.x}
+                        cy={pos.y}
+                        r={hoveredLocation === location.country ? size + 2 : size}
+                        fill="hsl(350, 70%, 50%)"
+                        filter="url(#glow)"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ 
+                          delay: index * 0.1,
+                          type: "spring",
+                          stiffness: 200
+                        }}
+                      />
+                      {/* Count label for larger markers */}
+                      {location.count >= 5 && (
+                        <text
+                          x={pos.x}
+                          y={pos.y + 4}
+                          textAnchor="middle"
+                          fill="white"
+                          fontSize="9"
+                          fontWeight="bold"
+                        >
+                          {location.count > 99 ? '99+' : location.count}
+                        </text>
+                      )}
+                    </g>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-card border shadow-lg">
+                    <div className="p-1">
+                      <div className="font-semibold flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-primary" />
+                        {location.country}
+                      </div>
+                      {location.city && (
+                        <div className="text-xs text-muted-foreground">{location.city}</div>
+                      )}
+                      <div className="text-sm text-primary font-medium mt-1">
+                        {location.count} {location.count === 1 ? 'Alumni' : 'Alumni'}
+                      </div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </TooltipProvider>
+        </svg>
+
+        {/* Loading overlay */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+              <span className="text-sm text-muted-foreground">Loading alumni locations...</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Gradient overlay at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent pointer-events-none rounded-b-xl" />
+      {/* Legend */}
+      <motion.div 
+        className="flex justify-center gap-6 mt-4 text-sm text-muted-foreground"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-[hsl(350,70%,50%)]" />
+          <span>1-4 Alumni</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded-full bg-[hsl(350,70%,50%)]" />
+          <span>5-9 Alumni</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-5 h-5 rounded-full bg-[hsl(350,70%,50%)]" />
+          <span>10+ Alumni</span>
+        </div>
+      </motion.div>
     </div>
   );
 };
