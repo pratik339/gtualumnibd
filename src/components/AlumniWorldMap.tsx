@@ -82,33 +82,37 @@ const AlumniWorldMap = () => {
     <div className="relative w-full">
       {/* Stats overlay */}
       <motion.div 
-        className="absolute top-4 left-4 z-10 flex gap-3"
+        className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 sm:gap-3"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <div className="bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border flex items-center gap-2">
+        <div className="bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 shadow-lg border flex items-center gap-2">
           <Users className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">{totalAlumni} Alumni</span>
+          <span className="text-xs sm:text-sm font-medium">{totalAlumni} Alumni</span>
         </div>
-        <div className="bg-card/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border flex items-center gap-2">
+        <div className="bg-card/90 backdrop-blur-sm rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 shadow-lg border flex items-center gap-2">
           <Globe className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">{locations.length} Countries</span>
+          <span className="text-xs sm:text-sm font-medium">{locations.length} Countries</span>
         </div>
       </motion.div>
 
-      {/* Map container */}
-      <div className="w-full h-[500px] rounded-xl overflow-hidden shadow-2xl border-2 border-border bg-[hsl(220,30%,12%)] dark:bg-[hsl(220,30%,8%)] relative">
+      {/* Map container - increased height and better aspect ratio */}
+      <div className="w-full aspect-[2/1] min-h-[300px] max-h-[600px] rounded-xl overflow-hidden shadow-2xl border-2 border-border bg-[hsl(220,30%,12%)] dark:bg-[hsl(220,30%,8%)] relative">
         <svg 
           viewBox="0 0 1000 500" 
           className="w-full h-full"
-          preserveAspectRatio="xMidYMid slice"
+          preserveAspectRatio="xMidYMid meet"
         >
           {/* World map simplified paths */}
           <defs>
             <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="hsl(220, 30%, 20%)" />
               <stop offset="100%" stopColor="hsl(220, 30%, 15%)" />
+            </linearGradient>
+            <linearGradient id="oceanGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="hsl(210, 50%, 15%)" />
+              <stop offset="100%" stopColor="hsl(210, 40%, 12%)" />
             </linearGradient>
             <filter id="glow">
               <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -117,78 +121,15 @@ const AlumniWorldMap = () => {
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
+            <filter id="continentShadow">
+              <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.3"/>
+            </filter>
           </defs>
           
           {/* Ocean background */}
-          <rect width="1000" height="500" fill="url(#mapGradient)" />
+          <rect width="1000" height="500" fill="url(#oceanGradient)" />
           
-          {/* Simplified continent outlines */}
-          {/* North America */}
-          <path
-            d="M80,100 Q100,80 150,90 Q200,85 250,100 Q280,90 300,120 Q290,150 280,180 Q260,200 240,220 Q220,260 180,280 Q140,300 100,280 Q80,250 90,220 Q70,180 80,140 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* South America */}
-          <path
-            d="M220,300 Q260,290 280,320 Q300,360 310,400 Q300,450 280,480 Q250,490 230,470 Q200,430 210,380 Q200,340 220,300 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* Europe */}
-          <path
-            d="M420,120 Q450,100 480,110 Q520,100 550,120 Q560,150 540,180 Q510,200 470,200 Q440,190 420,170 Q410,140 420,120 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* Africa */}
-          <path
-            d="M450,220 Q500,210 540,230 Q580,260 590,320 Q580,380 550,420 Q510,450 470,430 Q440,390 450,340 Q430,280 450,220 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* Asia */}
-          <path
-            d="M560,100 Q620,80 700,90 Q780,100 850,140 Q880,180 870,230 Q850,280 800,300 Q740,320 680,300 Q620,280 580,240 Q550,190 560,140 Q555,120 560,100 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* India subcontinent */}
-          <path
-            d="M640,240 Q680,230 710,260 Q720,300 700,340 Q670,360 640,340 Q620,300 640,240 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* Australia */}
-          <path
-            d="M780,380 Q830,360 880,380 Q910,420 890,460 Q850,480 800,470 Q760,450 770,410 Q765,390 780,380 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-          {/* Japan */}
-          <path
-            d="M850,180 Q870,170 880,190 Q885,220 870,240 Q855,250 850,230 Q845,200 850,180 Z"
-            fill="hsl(220, 20%, 30%)"
-            stroke="hsl(220, 20%, 40%)"
-            strokeWidth="0.5"
-            opacity="0.8"
-          />
-
-          {/* Grid lines */}
+          {/* Grid lines - more subtle */}
           {[...Array(9)].map((_, i) => (
             <line
               key={`h-${i}`}
@@ -199,7 +140,7 @@ const AlumniWorldMap = () => {
               stroke="hsl(220, 30%, 25%)"
               strokeWidth="0.3"
               strokeDasharray="5,5"
-              opacity="0.3"
+              opacity="0.2"
             />
           ))}
           {[...Array(19)].map((_, i) => (
@@ -212,9 +153,116 @@ const AlumniWorldMap = () => {
               stroke="hsl(220, 30%, 25%)"
               strokeWidth="0.3"
               strokeDasharray="5,5"
-              opacity="0.3"
+              opacity="0.2"
             />
           ))}
+
+          {/* Improved continent shapes */}
+          {/* North America */}
+          <path
+            d="M50,80 Q80,60 120,70 L180,65 Q220,60 260,75 L290,90 Q300,120 290,160 L275,200 Q250,240 220,270 L180,290 Q140,300 100,280 L70,250 Q50,210 60,170 L55,130 Q45,100 50,80 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* Central America */}
+          <path
+            d="M150,285 Q170,280 180,300 L185,330 Q175,350 160,345 L150,320 Q145,300 150,285 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* South America */}
+          <path
+            d="M200,330 Q250,310 280,340 L300,400 Q310,450 290,490 L250,500 Q200,495 180,460 L170,400 Q175,360 200,330 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* Europe */}
+          <path
+            d="M430,100 Q460,80 500,90 L540,95 Q570,90 590,110 L585,140 Q570,170 540,185 L500,190 Q460,185 440,165 L425,130 Q420,110 430,100 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* UK */}
+          <path
+            d="M440,120 Q450,110 460,120 L458,140 Q450,150 442,145 L440,130 Q438,125 440,120 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* Africa */}
+          <path
+            d="M450,210 Q500,195 550,215 L590,260 Q610,320 600,380 L580,430 Q550,470 500,460 L460,430 Q430,380 440,320 L435,260 Q440,230 450,210 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* Middle East */}
+          <path
+            d="M560,200 Q590,190 620,210 L640,250 Q635,280 610,290 L575,275 Q555,250 560,200 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* Russia/Northern Asia */}
+          <path
+            d="M580,80 Q650,60 750,70 L850,90 Q890,100 900,130 L890,160 Q860,180 800,175 L720,165 Q650,160 600,145 L580,120 Q570,95 580,80 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* Asia */}
+          <path
+            d="M620,150 Q680,140 750,160 L820,180 Q870,200 880,250 L870,300 Q840,330 780,325 L720,310 Q660,290 630,250 L610,200 Q610,170 620,150 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* India subcontinent */}
+          <path
+            d="M650,250 Q690,240 720,270 L725,320 Q710,360 680,365 L650,350 Q630,310 650,250 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* Southeast Asia */}
+          <path
+            d="M740,310 Q770,300 790,320 L800,360 Q790,390 760,385 L740,360 Q730,335 740,310 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* Japan */}
+          <path
+            d="M860,180 Q875,170 885,185 L890,220 Q880,250 865,245 L855,220 Q850,195 860,180 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
+          {/* Australia */}
+          <path
+            d="M780,380 Q840,365 890,390 L920,440 Q910,485 860,490 L800,480 Q760,455 765,420 Q765,395 780,380 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+            filter="url(#continentShadow)"
+          />
+          {/* New Zealand */}
+          <path
+            d="M920,460 Q935,455 940,470 L935,490 Q925,495 920,485 L920,470 Z"
+            fill="hsl(220, 20%, 32%)"
+            stroke="hsl(220, 20%, 45%)"
+            strokeWidth="0.8"
+          />
 
           {/* Alumni location markers */}
           <TooltipProvider>
@@ -236,43 +284,43 @@ const AlumniWorldMap = () => {
                       <motion.circle
                         cx={pos.x}
                         cy={pos.y}
-                        r={size + 4}
+                        r={size + 6}
                         fill="hsl(350, 70%, 50%)"
                         opacity={0.3}
                         initial={{ scale: 1, opacity: 0.3 }}
                         animate={{ 
-                          scale: [1, 1.5, 1],
+                          scale: [1, 1.8, 1],
                           opacity: [0.3, 0, 0.3]
                         }}
                         transition={{
-                          duration: 2,
+                          duration: 2.5,
                           repeat: Infinity,
-                          delay: index * 0.2
+                          delay: index * 0.15
                         }}
                       />
                       {/* Main marker */}
                       <motion.circle
                         cx={pos.x}
                         cy={pos.y}
-                        r={hoveredLocation === location.country ? size + 2 : size}
+                        r={hoveredLocation === location.country ? size + 3 : size}
                         fill="hsl(350, 70%, 50%)"
                         filter="url(#glow)"
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ 
-                          delay: index * 0.1,
+                          delay: index * 0.08,
                           type: "spring",
                           stiffness: 200
                         }}
                       />
                       {/* Count label for larger markers */}
-                      {location.count >= 5 && (
+                      {location.count >= 3 && (
                         <text
                           x={pos.x}
                           y={pos.y + 4}
                           textAnchor="middle"
                           fill="white"
-                          fontSize="9"
+                          fontSize="10"
                           fontWeight="bold"
                         >
                           {location.count > 99 ? '99+' : location.count}
@@ -313,21 +361,21 @@ const AlumniWorldMap = () => {
 
       {/* Legend */}
       <motion.div 
-        className="flex justify-center gap-6 mt-4 text-sm text-muted-foreground"
+        className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-4 text-xs sm:text-sm text-muted-foreground"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
       >
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[hsl(350,70%,50%)]" />
-          <span>1-4 Alumni</span>
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-[hsl(350,70%,50%)]" />
+          <span>1-2 Alumni</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-[hsl(350,70%,50%)]" />
-          <span>5-9 Alumni</span>
+          <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-[hsl(350,70%,50%)]" />
+          <span>3-9 Alumni</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 rounded-full bg-[hsl(350,70%,50%)]" />
+          <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[hsl(350,70%,50%)]" />
           <span>10+ Alumni</span>
         </div>
       </motion.div>

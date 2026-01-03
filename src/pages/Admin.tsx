@@ -10,8 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles } from 'lucide-react';
+import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import * as XLSX from 'xlsx';
 
 export default function Admin() {
   const { profiles: allProfiles, refetch } = useProfiles();
@@ -22,6 +23,10 @@ export default function Admin() {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectProfileId, setRejectProfileId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
+  const [deleteProfileName, setDeleteProfileName] = useState<string>('');
+  const [exportLoading, setExportLoading] = useState(false);
 
   const approvedCount = allProfiles.filter(p => p.status === 'approved').length;
   const rejectedCount = allProfiles.filter(p => p.status === 'rejected').length;
@@ -105,6 +110,111 @@ export default function Admin() {
     setBulkLoading(false);
   };
 
+  const handleExportToExcel = async () => {
+    setExportLoading(true);
+    try {
+      // Fetch all profiles with relations for export
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          colleges:college_id(name, city),
+          branches:branch_id(name, code),
+          high_commissions:high_commission_id(name, country)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast({ title: 'No data', description: 'No profiles found to export.' });
+        setExportLoading(false);
+        return;
+      }
+
+      // Transform data for Excel
+      const excelData = data.map(profile => ({
+        'Full Name': profile.full_name,
+        'Email': profile.email || '',
+        'User Type': profile.user_type,
+        'Status': profile.status,
+        'College': profile.colleges?.name || '',
+        'College City': profile.colleges?.city || '',
+        'Branch': profile.branches?.name || '',
+        'Branch Code': profile.branches?.code || '',
+        'Passout Year': profile.passout_year || '',
+        'Current Semester': profile.current_semester || '',
+        'Expected Passout Year': profile.expected_passout_year || '',
+        'Scholarship Year': profile.scholarship_year || '',
+        'High Commission': profile.high_commissions?.name || '',
+        'Country': profile.location_country || '',
+        'City': profile.location_city || '',
+        'Company': profile.company || '',
+        'Job Title': profile.job_title || '',
+        'LinkedIn': profile.linkedin_url || '',
+        'WhatsApp': profile.whatsapp_number || '',
+        'Facebook': profile.facebook_url || '',
+        'Enrollment Number': profile.enrollment_number || '',
+        'Achievements': profile.achievements || '',
+        'Experience': profile.experience || '',
+        'Created At': new Date(profile.created_at).toLocaleDateString(),
+        'Updated At': new Date(profile.updated_at).toLocaleDateString(),
+      }));
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Auto-width columns
+      const colWidths = Object.keys(excelData[0]).map(key => ({
+        wch: Math.max(key.length, 15)
+      }));
+      ws['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(wb, ws, 'All Profiles');
+
+      // Export
+      const fileName = `GTU_Alumni_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast({ title: 'Export successful', description: `${data.length} profiles exported to ${fileName}` });
+    } catch (error: any) {
+      toast({ title: 'Export failed', description: error.message, variant: 'destructive' });
+    }
+    setExportLoading(false);
+  };
+
+  const openDeleteDialog = (profileId: string, profileName: string) => {
+    setDeleteProfileId(profileId);
+    setDeleteProfileName(profileName);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteProfileId) return;
+    
+    setLoadingId(deleteProfileId);
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', deleteProfileId);
+
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ 
+        title: 'Profile deleted', 
+        description: `${deleteProfileName}'s profile has been permanently deleted.` 
+      });
+      refetch();
+      refetchPending();
+    }
+    setLoadingId(null);
+    setDeleteDialogOpen(false);
+    setDeleteProfileId(null);
+    setDeleteProfileName('');
+  };
+
   return (
     <ProtectedRoute requireAdmin>
       <Layout>
@@ -155,13 +265,26 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="pending">
-            <TabsList className="mb-4">
-              <TabsTrigger value="pending" className="gap-2">
-                <AlertTriangle className="h-4 w-4" />
-                Pending ({pendingCount})
-              </TabsTrigger>
-              <TabsTrigger value="all">All Users</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+              <TabsList>
+                <TabsTrigger value="pending" className="gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Pending ({pendingCount})
+                </TabsTrigger>
+                <TabsTrigger value="all">All Users</TabsTrigger>
+              </TabsList>
+              
+              {/* Export Button */}
+              <Button 
+                onClick={handleExportToExcel} 
+                disabled={exportLoading}
+                variant="outline"
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                {exportLoading ? 'Exporting...' : 'Export to Excel'}
+              </Button>
+            </div>
 
             <TabsContent value="pending" className="mt-6">
               {pendingProfiles.length === 0 ? (
@@ -293,6 +416,14 @@ export default function Admin() {
                               Approve
                             </Button>
                           )}
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            onClick={() => openDeleteDialog(profile.id, profile.full_name)}
+                            disabled={loadingId === profile.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -333,6 +464,30 @@ export default function Admin() {
                   disabled={loadingId === rejectProfileId}
                 >
                   {loadingId === rejectProfileId ? 'Rejecting...' : 'Reject Profile'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Delete Confirmation Dialog */}
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Profile</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to permanently delete <strong>{deleteProfileName}</strong>'s profile? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDelete}
+                  disabled={loadingId === deleteProfileId}
+                >
+                  {loadingId === deleteProfileId ? 'Deleting...' : 'Delete Profile'}
                 </Button>
               </DialogFooter>
             </DialogContent>
