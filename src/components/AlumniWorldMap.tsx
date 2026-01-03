@@ -1,13 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAlumniLocations } from '@/hooks/useAlumniLocations';
 import { Globe, Users, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 // Country coordinates mapped to SVG viewBox (simplified world map projection)
 const countryPositions: Record<string, { x: number; y: number }> = {
@@ -265,88 +259,101 @@ const AlumniWorldMap = () => {
           />
 
           {/* Alumni location markers */}
-          <TooltipProvider>
-            {locations.map((location, index) => {
-              const pos = countryPositions[location.country];
-              if (!pos) return null;
-              
-              const size = getMarkerSize(location.count);
-              
-              return (
-                <Tooltip key={location.country}>
-                  <TooltipTrigger asChild>
-                    <g
-                      onMouseEnter={() => setHoveredLocation(location.country)}
-                      onMouseLeave={() => setHoveredLocation(null)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {/* Pulse animation */}
-                      <motion.circle
-                        cx={pos.x}
-                        cy={pos.y}
-                        r={size + 6}
-                        fill="hsl(350, 70%, 50%)"
-                        opacity={0.3}
-                        initial={{ scale: 1, opacity: 0.3 }}
-                        animate={{ 
-                          scale: [1, 1.8, 1],
-                          opacity: [0.3, 0, 0.3]
-                        }}
-                        transition={{
-                          duration: 2.5,
-                          repeat: Infinity,
-                          delay: index * 0.15
-                        }}
-                      />
-                      {/* Main marker */}
-                      <motion.circle
-                        cx={pos.x}
-                        cy={pos.y}
-                        r={hoveredLocation === location.country ? size + 3 : size}
-                        fill="hsl(350, 70%, 50%)"
-                        filter="url(#glow)"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ 
-                          delay: index * 0.08,
-                          type: "spring",
-                          stiffness: 200
-                        }}
-                      />
-                      {/* Count label for larger markers */}
-                      {location.count >= 3 && (
-                        <text
-                          x={pos.x}
-                          y={pos.y + 4}
-                          textAnchor="middle"
-                          fill="white"
-                          fontSize="10"
-                          fontWeight="bold"
-                        >
-                          {location.count > 99 ? '99+' : location.count}
-                        </text>
-                      )}
-                    </g>
-                  </TooltipTrigger>
-                  <TooltipContent className="bg-card border shadow-lg">
-                    <div className="p-1">
-                      <div className="font-semibold flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-primary" />
-                        {location.country}
-                      </div>
-                      {location.city && (
-                        <div className="text-xs text-muted-foreground">{location.city}</div>
-                      )}
-                      <div className="text-sm text-primary font-medium mt-1">
-                        {location.count} {location.count === 1 ? 'Alumni' : 'Alumni'}
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </TooltipProvider>
+          {locations.map((location, index) => {
+            const pos = countryPositions[location.country];
+            if (!pos) return null;
+            
+            const size = getMarkerSize(location.count);
+            const isHovered = hoveredLocation === location.country;
+            
+            return (
+              <g
+                key={location.country}
+                onMouseEnter={() => setHoveredLocation(location.country)}
+                onMouseLeave={() => setHoveredLocation(null)}
+                style={{ cursor: 'pointer' }}
+              >
+                {/* Pulse animation */}
+                <motion.circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={size + 6}
+                  fill="hsl(350, 70%, 50%)"
+                  opacity={0.3}
+                  initial={{ scale: 1, opacity: 0.3 }}
+                  animate={{ 
+                    scale: [1, 1.8, 1],
+                    opacity: [0.3, 0, 0.3]
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    delay: index * 0.15
+                  }}
+                />
+                {/* Main marker */}
+                <motion.circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={isHovered ? size + 3 : size}
+                  fill="hsl(350, 70%, 50%)"
+                  filter="url(#glow)"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ 
+                    delay: index * 0.08,
+                    type: "spring",
+                    stiffness: 200
+                  }}
+                />
+                {/* Count label for larger markers */}
+                {location.count >= 3 && (
+                  <text
+                    x={pos.x}
+                    y={pos.y + 4}
+                    textAnchor="middle"
+                    fill="white"
+                    fontSize="10"
+                    fontWeight="bold"
+                  >
+                    {location.count > 99 ? '99+' : location.count}
+                  </text>
+                )}
+              </g>
+            );
+          })}
         </svg>
+
+        {/* Hover tooltip - positioned outside SVG */}
+        {hoveredLocation && (() => {
+          const location = locations.find(l => l.country === hoveredLocation);
+          const pos = location ? countryPositions[location.country] : null;
+          if (!location || !pos) return null;
+          
+          return (
+            <motion.div
+              className="absolute bg-card/95 backdrop-blur-sm border shadow-lg rounded-lg px-3 py-2 pointer-events-none z-20"
+              style={{
+                left: `${(pos.x / 1000) * 100}%`,
+                top: `${(pos.y / 500) * 100}%`,
+                transform: 'translate(-50%, -120%)'
+              }}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div className="font-semibold flex items-center gap-1 text-foreground">
+                <MapPin className="w-3 h-3 text-primary" />
+                {location.country}
+              </div>
+              {location.city && (
+                <div className="text-xs text-muted-foreground">{location.city}</div>
+              )}
+              <div className="text-sm text-primary font-medium mt-1">
+                {location.count} Alumni
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* Loading overlay */}
         {loading && (
