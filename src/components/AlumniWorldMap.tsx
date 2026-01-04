@@ -91,11 +91,13 @@ const AlumniWorldMap = () => {
         </div>
       </motion.div>
 
-      {/* Map container - increased height and better aspect ratio */}
-      <div className="w-full aspect-[2/1] min-h-[300px] max-h-[600px] rounded-xl overflow-hidden shadow-2xl border-2 border-border bg-[hsl(220,30%,12%)] dark:bg-[hsl(220,30%,8%)] relative">
-        <svg 
-          viewBox="0 0 1000 500" 
-          className="w-full h-full"
+      {/* Map container */}
+      <div className="w-full rounded-xl overflow-hidden shadow-2xl border bg-card relative">
+        <svg
+          viewBox="0 0 1000 500"
+          width="100%"
+          height="500"
+          className="w-full"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* World map simplified paths */}
