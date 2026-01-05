@@ -10,8 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2 } from 'lucide-react';
+import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2, Eye } from 'lucide-react';
 import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type { ProfileWithRelations } from '@/hooks/useProfiles';
 import * as XLSX from 'xlsx';
 
 export default function Admin() {
@@ -27,6 +31,8 @@ export default function Admin() {
   const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
   const [deleteProfileName, setDeleteProfileName] = useState<string>('');
   const [exportLoading, setExportLoading] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewProfile, setViewProfile] = useState<ProfileWithRelations | null>(null);
 
   const approvedCount = allProfiles.filter(p => p.status === 'approved').length;
   const rejectedCount = allProfiles.filter(p => p.status === 'rejected').length;
@@ -190,6 +196,11 @@ export default function Admin() {
     setDeleteDialogOpen(true);
   };
 
+  const openViewDialog = (profile: ProfileWithRelations) => {
+    setViewProfile(profile);
+    setViewDialogOpen(true);
+  };
+
   const handleDelete = async () => {
     if (!deleteProfileId) return;
     
@@ -323,16 +334,19 @@ export default function Admin() {
                     <Card key={profile.id} className="hover:shadow-md transition-all">
                       <CardContent className="py-4">
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shadow-inner">
+                          <div 
+                            className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
+                            onClick={() => openViewDialog(profile)}
+                          >
+                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shadow-inner flex-shrink-0">
                               {profile.photo_url ? (
                                 <img src={profile.photo_url} className="w-14 h-14 rounded-xl object-cover" />
                               ) : (
                                 <span className="font-bold text-primary text-lg">{profile.full_name[0]}</span>
                               )}
                             </div>
-                            <div>
-                              <h3 className="font-semibold text-lg">{profile.full_name}</h3>
+                            <div className="min-w-0">
+                              <h3 className="font-semibold text-lg hover:text-primary transition-colors">{profile.full_name}</h3>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <Badge variant="secondary" className="capitalize">
                                   {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
@@ -341,7 +355,7 @@ export default function Admin() {
                                   <span className="text-sm text-muted-foreground">{profile.branches.name}</span>
                                 )}
                                 {profile.colleges?.name && (
-                                  <span className="text-sm text-muted-foreground">• {profile.colleges.name}</span>
+                                  <span className="text-sm text-muted-foreground truncate">• {profile.colleges.name}</span>
                                 )}
                               </div>
                               <p className="text-xs text-muted-foreground mt-1">
@@ -349,7 +363,15 @@ export default function Admin() {
                               </p>
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-shrink-0 ml-4">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => openViewDialog(profile)}
+                              className="gap-1"
+                            >
+                              <Eye className="h-4 w-4" /> View
+                            </Button>
                             <Button 
                               size="sm" 
                               onClick={() => handleApprove(profile.id)}
@@ -383,16 +405,19 @@ export default function Admin() {
                   <Card key={profile.id} className="hover:shadow-md transition-all">
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shadow-inner">
+                        <div 
+                          className="flex items-center gap-4 cursor-pointer flex-1 min-w-0"
+                          onClick={() => openViewDialog(profile)}
+                        >
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shadow-inner flex-shrink-0">
                             {profile.photo_url ? (
                               <img src={profile.photo_url} className="w-12 h-12 rounded-xl object-cover" />
                             ) : (
                               <span className="font-bold text-primary">{profile.full_name[0]}</span>
                             )}
                           </div>
-                          <div>
-                            <h3 className="font-medium">{profile.full_name}</h3>
+                          <div className="min-w-0">
+                            <h3 className="font-medium hover:text-primary transition-colors">{profile.full_name}</h3>
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-muted-foreground capitalize">{profile.user_type}</span>
                               {profile.branches?.name && (
@@ -401,7 +426,14 @@ export default function Admin() {
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => openViewDialog(profile)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Badge 
                             variant={
                               profile.status === 'approved' ? 'default' : 
@@ -488,6 +520,221 @@ export default function Admin() {
                   disabled={loadingId === deleteProfileId}
                 >
                   {loadingId === deleteProfileId ? 'Deleting...' : 'Delete Profile'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* View Profile Dialog */}
+          <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+            <DialogContent className="max-w-2xl max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Profile Details</DialogTitle>
+                <DialogDescription>
+                  Complete profile information for verification
+                </DialogDescription>
+              </DialogHeader>
+              {viewProfile && (
+                <ScrollArea className="max-h-[60vh] pr-4">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex items-center gap-4">
+                      <Avatar className="h-20 w-20 border-2">
+                        <AvatarImage src={viewProfile.photo_url || undefined} />
+                        <AvatarFallback className="text-2xl bg-primary/10 text-primary">
+                          {viewProfile.full_name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="text-xl font-bold">{viewProfile.full_name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={viewProfile.user_type === 'alumni' ? 'default' : 'secondary'}>
+                            {viewProfile.user_type === 'alumni' ? 'Alumni' : 'Student'}
+                          </Badge>
+                          <Badge variant={
+                            viewProfile.status === 'approved' ? 'default' : 
+                            viewProfile.status === 'pending' ? 'secondary' : 'destructive'
+                          }>
+                            {viewProfile.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Contact Info */}
+                    <div>
+                      <h4 className="font-semibold mb-3">Contact Information</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Email:</span>
+                          <p className="font-medium">{viewProfile.email || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">WhatsApp:</span>
+                          <p className="font-medium">{viewProfile.whatsapp_number || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">LinkedIn:</span>
+                          <p className="font-medium break-all">{viewProfile.linkedin_url || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Facebook:</span>
+                          <p className="font-medium break-all">{viewProfile.facebook_url || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Education */}
+                    <div>
+                      <h4 className="font-semibold mb-3">Education</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">College:</span>
+                          <p className="font-medium">{viewProfile.colleges?.name || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Branch:</span>
+                          <p className="font-medium">{viewProfile.branches?.name || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Enrollment Number:</span>
+                          <p className="font-medium">{viewProfile.enrollment_number || 'Not provided'}</p>
+                        </div>
+                        {viewProfile.user_type === 'alumni' ? (
+                          <div>
+                            <span className="text-muted-foreground">Passout Year:</span>
+                            <p className="font-medium">{viewProfile.passout_year || 'Not provided'}</p>
+                          </div>
+                        ) : (
+                          <>
+                            <div>
+                              <span className="text-muted-foreground">Current Semester:</span>
+                              <p className="font-medium">{viewProfile.current_semester || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Expected Passout:</span>
+                              <p className="font-medium">{viewProfile.expected_passout_year || 'Not provided'}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Scholarship */}
+                    {(viewProfile.high_commissions || viewProfile.scholarship_year) && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h4 className="font-semibold mb-3">Scholarship</h4>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">High Commission:</span>
+                              <p className="font-medium">{viewProfile.high_commissions?.name || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Scholarship Year:</span>
+                              <p className="font-medium">{viewProfile.scholarship_year || 'Not provided'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Work (Alumni only) */}
+                    {viewProfile.user_type === 'alumni' && (viewProfile.job_title || viewProfile.company || viewProfile.location_city) && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h4 className="font-semibold mb-3">Current Work</h4>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Job Title:</span>
+                              <p className="font-medium">{viewProfile.job_title || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Company:</span>
+                              <p className="font-medium">{viewProfile.company || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">City:</span>
+                              <p className="font-medium">{viewProfile.location_city || 'Not provided'}</p>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Country:</span>
+                              <p className="font-medium">{viewProfile.location_country || 'Not provided'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Experience & Achievements */}
+                    {(viewProfile.experience || viewProfile.achievements || (viewProfile as any).projects) && (
+                      <>
+                        <Separator />
+                        <div className="space-y-4">
+                          {viewProfile.experience && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Experience</h4>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{viewProfile.experience}</p>
+                            </div>
+                          )}
+                          {viewProfile.achievements && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Achievements</h4>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{viewProfile.achievements}</p>
+                            </div>
+                          )}
+                          {(viewProfile as any).projects && (
+                            <div>
+                              <h4 className="font-semibold mb-2">Projects</h4>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{(viewProfile as any).projects}</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {/* Metadata */}
+                    <Separator />
+                    <div className="text-xs text-muted-foreground">
+                      <p>Created: {new Date(viewProfile.created_at).toLocaleString()}</p>
+                      <p>Updated: {new Date(viewProfile.updated_at).toLocaleString()}</p>
+                    </div>
+                  </div>
+                </ScrollArea>
+              )}
+              <DialogFooter>
+                {viewProfile?.status === 'pending' && (
+                  <>
+                    <Button 
+                      onClick={() => {
+                        handleApprove(viewProfile.id);
+                        setViewDialogOpen(false);
+                      }}
+                      disabled={loadingId === viewProfile?.id}
+                      className="gap-1"
+                    >
+                      <CheckCircle className="h-4 w-4" /> Approve
+                    </Button>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => {
+                        setViewDialogOpen(false);
+                        openRejectDialog(viewProfile.id);
+                      }}
+                      className="gap-1"
+                    >
+                      <XCircle className="h-4 w-4" /> Reject
+                    </Button>
+                  </>
+                )}
+                <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+                  Close
                 </Button>
               </DialogFooter>
             </DialogContent>
