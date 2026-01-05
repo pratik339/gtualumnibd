@@ -105,6 +105,7 @@ export type Database = {
           location_country: string | null
           passout_year: number | null
           photo_url: string | null
+          projects: string | null
           rejection_reason: string | null
           scholarship_year: number | null
           status: Database["public"]["Enums"]["approval_status"]
@@ -138,6 +139,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          projects?: string | null
           rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"]
@@ -171,6 +173,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          projects?: string | null
           rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"]
@@ -252,6 +255,7 @@ export type Database = {
           location_country: string | null
           passout_year: number | null
           photo_url: string | null
+          projects: string | null
           rejection_reason: string | null
           scholarship_year: number | null
           status: Database["public"]["Enums"]["approval_status"] | null
@@ -285,6 +289,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          projects?: string | null
           rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"] | null
@@ -318,6 +323,7 @@ export type Database = {
           location_country?: string | null
           passout_year?: number | null
           photo_url?: string | null
+          projects?: string | null
           rejection_reason?: string | null
           scholarship_year?: number | null
           status?: Database["public"]["Enums"]["approval_status"] | null
