@@ -49,6 +49,7 @@ export default function ProfileEdit() {
     location_country: '',
     experience: '',
     achievements: '',
+    projects: '',
     linkedin_url: '',
     whatsapp_number: '',
     facebook_url: '',
@@ -78,6 +79,7 @@ export default function ProfileEdit() {
         location_country: profile.location_country || '',
         experience: profile.experience || '',
         achievements: profile.achievements || '',
+        projects: (profile as any).projects || '',
         linkedin_url: profile.linkedin_url || '',
         whatsapp_number: profile.whatsapp_number || '',
         facebook_url: profile.facebook_url || '',
@@ -186,6 +188,7 @@ export default function ProfileEdit() {
         location_country: formData.location_country || null,
         experience: formData.experience || null,
         achievements: formData.achievements || null,
+        projects: formData.projects || null,
         linkedin_url: formData.linkedin_url || null,
         whatsapp_number: formData.whatsapp_number || null,
         facebook_url: formData.facebook_url || null,
@@ -500,6 +503,18 @@ export default function ProfileEdit() {
                     id="achievements"
                     value={formData.achievements}
                     onChange={(e) => setFormData(prev => ({ ...prev, achievements: e.target.value }))}
+                    rows={3}
+                  />
+                </div>
+
+                {/* Projects */}
+                <div className="space-y-2">
+                  <Label htmlFor="projects">Projects (If any)</Label>
+                  <Textarea
+                    id="projects"
+                    placeholder="List your academic or personal projects, research work, etc."
+                    value={formData.projects}
+                    onChange={(e) => setFormData(prev => ({ ...prev, projects: e.target.value }))}
                     rows={3}
                   />
                 </div>

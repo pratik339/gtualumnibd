@@ -44,6 +44,7 @@ export default function Register() {
     high_commission_id: '',
     achievements: '',
     experience: '',
+    projects: '',
     job_title: '',
     company: '',
     location_city: '',
@@ -175,6 +176,7 @@ export default function Register() {
         high_commission_id: formData.high_commission_id || null,
         achievements: formData.achievements || null,
         experience: formData.experience || null,
+        projects: formData.projects || null,
         job_title: userType === 'alumni' ? formData.job_title || null : null,
         company: userType === 'alumni' ? formData.company || null : null,
         location_city: userType === 'alumni' ? formData.location_city || null : null,
@@ -473,9 +475,19 @@ export default function Register() {
                     <Label htmlFor="experience">Experience</Label>
                     <Textarea
                       id="experience"
-                      placeholder="Work experience, internships, research, projects..."
+                      placeholder="Work experience, internships, research..."
                       value={formData.experience}
                       onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="projects">Projects (If any)</Label>
+                    <Textarea
+                      id="projects"
+                      placeholder="List your academic or personal projects, research work, etc."
+                      value={formData.projects}
+                      onChange={(e) => setFormData({ ...formData, projects: e.target.value })}
                       rows={3}
                     />
                   </div>

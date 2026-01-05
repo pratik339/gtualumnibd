@@ -315,8 +315,8 @@ export default function ProfileView() {
                     )}
                   </motion.div>
 
-                  {/* Experience & Achievements */}
-                  {(profile.experience || profile.achievements) && (
+                  {/* Experience & Achievements & Projects */}
+                  {(profile.experience || profile.achievements || (profile as any).projects) && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -334,6 +334,12 @@ export default function ProfileView() {
                           <div>
                             <h3 className="font-semibold text-lg mb-3">Achievements</h3>
                             <p className="text-muted-foreground whitespace-pre-wrap">{profile.achievements}</p>
+                          </div>
+                        )}
+                        {(profile as any).projects && (
+                          <div>
+                            <h3 className="font-semibold text-lg mb-3">Projects (If any)</h3>
+                            <p className="text-muted-foreground whitespace-pre-wrap">{(profile as any).projects}</p>
                           </div>
                         )}
                       </div>
