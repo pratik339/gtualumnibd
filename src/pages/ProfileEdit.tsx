@@ -3,7 +3,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { CollegeSelector } from '@/components/CollegeSelector';
-import { useBranches } from '@/hooks/useBranches';
+import { BranchSelector } from '@/components/BranchSelector';
 import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { supabase } from '@/integrations/supabase/client';
 import { useState, useEffect } from 'react';
@@ -25,7 +25,7 @@ import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema
 export default function ProfileEdit() {
   const { user } = useAuth();
   const { profile, loading: profileLoading, refetch } = useProfile();
-  const { branches } = useBranches();
+  
   const { highCommissions } = useHighCommissions();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -349,22 +349,11 @@ export default function ProfileEdit() {
                     onChange={(value) => setFormData(prev => ({ ...prev, college_id: value }))}
                     label="College"
                   />
-                  <div className="space-y-2">
-                    <Label htmlFor="branch">Branch</Label>
-                    <Select
-                      value={formData.branch_id}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, branch_id: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select branch" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        {branches.map((branch) => (
-                          <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <BranchSelector
+                    value={formData.branch_id}
+                    onChange={(value) => setFormData(prev => ({ ...prev, branch_id: value }))}
+                    label="Branch"
+                  />
                 </div>
 
                 {isStudent && (
