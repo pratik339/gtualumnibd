@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { useBranches } from '@/hooks/useBranches';
+import { BranchSelector } from '@/components/BranchSelector';
 import { CollegeSelector } from '@/components/CollegeSelector';
 import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { Loader2, GraduationCap, BookOpen, Upload } from 'lucide-react';
@@ -24,7 +24,7 @@ export default function Register() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { branches } = useBranches();
+  
   const { highCommissions } = useHighCommissions();
 
   const [loading, setLoading] = useState(false);
@@ -346,24 +346,10 @@ export default function Register() {
                     onChange={(value) => setFormData({ ...formData, college_id: value })}
                   />
 
-                  <div>
-                    <Label>Branch / Discipline</Label>
-                    <Select
-                      value={formData.branch_id}
-                      onValueChange={(value) => setFormData({ ...formData, branch_id: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select branch" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover">
-                        {branches.map((branch) => (
-                          <SelectItem key={branch.id} value={branch.id}>
-                            {branch.name} {branch.code && `(${branch.code})`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <BranchSelector
+                    value={formData.branch_id}
+                    onChange={(value) => setFormData({ ...formData, branch_id: value })}
+                  />
 
                   {userType === 'alumni' ? (
                     <div>
