@@ -2,16 +2,18 @@ import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useProfile } from '@/hooks/useProfile';
 import { useProfiles } from '@/hooks/useProfiles';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Users, GraduationCap, BookOpen, Clock, XCircle, AlertTriangle } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, Clock, XCircle, AlertTriangle, Shield } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function Dashboard() {
   const { profile, loading } = useProfile();
   const { profiles } = useProfiles({ status: 'approved' });
+  const { isAdmin } = useAuth();
 
   const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
   const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
@@ -114,9 +116,16 @@ export default function Dashboard() {
                   )}
                   <div>
                     <h3 className="font-semibold">{profile.full_name}</h3>
-                    <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'}>
-                      {profile.user_type === 'alumni' ? 'Alumni' : 'Current Student'}
-                    </Badge>
+                    {isAdmin ? (
+                      <Badge variant="default" className="bg-primary">
+                        <Shield className="mr-1 h-3 w-3" />
+                        Admin
+                      </Badge>
+                    ) : (
+                      <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'}>
+                        {profile.user_type === 'alumni' ? 'Alumni' : 'Current Student'}
+                      </Badge>
+                    )}
                   </div>
                   <Button variant="outline" className="ml-auto" asChild>
                     <Link to="/profile/edit">Edit Profile</Link>

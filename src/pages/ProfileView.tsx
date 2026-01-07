@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
   MapPin, Briefcase, Mail, Linkedin, Phone, Facebook, 
-  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2 
+  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2, Shield 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -21,6 +21,7 @@ export default function ProfileView() {
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<ProfileWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isProfileAdmin, setIsProfileAdmin] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -44,6 +45,17 @@ export default function ProfileView() {
 
       if (error) throw error;
       setProfile(data as ProfileWithRelations);
+
+      // Check if profile user is an admin
+      if (data?.user_id) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user_id)
+          .eq('role', 'admin')
+          .maybeSingle();
+        setIsProfileAdmin(!!roleData);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
     } finally {
@@ -141,9 +153,16 @@ export default function ProfileView() {
                     >
                       <h1 className="text-3xl font-bold">{profile.full_name}</h1>
                       <div className="flex flex-wrap gap-2 mt-2 justify-center sm:justify-start">
-                        <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'}>
-                          {profile.user_type === 'alumni' ? 'Alumni' : profile.user_type === 'scholar' ? 'Scholar' : 'Student'}
-                        </Badge>
+                        {isProfileAdmin ? (
+                          <Badge variant="default" className="bg-primary">
+                            <Shield className="mr-1 h-3 w-3" />
+                            Admin
+                          </Badge>
+                        ) : (
+                          <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'}>
+                            {profile.user_type === 'alumni' ? 'Alumni' : profile.user_type === 'scholar' ? 'Scholar' : 'Student'}
+                          </Badge>
+                        )}
                         <Badge variant="outline">{profile.status}</Badge>
                       </div>
                       
