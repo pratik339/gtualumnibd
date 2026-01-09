@@ -17,6 +17,7 @@ export interface ProfileWithRelations {
   high_commission_id: string | null;
   enrollment_number: string | null;
   achievements: string | null;
+  projects: string | null;
   experience: string | null;
   job_title: string | null;
   company: string | null;
