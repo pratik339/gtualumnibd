@@ -6,17 +6,33 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
-import { Search, MapPin, Briefcase, Mail, Linkedin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, MapPin, Briefcase, Mail, Linkedin, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PageTransition, staggerContainer, fadeInUp } from '@/components/ui/page-transition';
 import { sanitizeExternalUrl } from '@/lib/validation';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Directory() {
   const { profiles, loading } = useProfiles({ status: 'approved', useSecureView: true });
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
+
+  // Fetch admin user IDs
+  useEffect(() => {
+    const fetchAdminIds = async () => {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+      if (data) {
+        setAdminUserIds(new Set(data.map(r => r.user_id)));
+      }
+    };
+    fetchAdminIds();
+  }, []);
 
   const filteredProfiles = profiles.filter(profile => {
     const matchesSearch = profile.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -121,9 +137,16 @@ export default function Directory() {
                             </Avatar>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-semibold truncate">{profile.full_name}</h3>
-                              <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'} className="mt-1">
-                                {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
-                              </Badge>
+                              {adminUserIds.has(profile.user_id!) ? (
+                                <Badge variant="default" className="mt-1 bg-primary">
+                                  <Shield className="mr-1 h-3 w-3" />
+                                  Admin
+                                </Badge>
+                              ) : (
+                                <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'} className="mt-1">
+                                  {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
+                                </Badge>
+                              )}
                               {profile.branches?.name && (
                                 <p className="text-sm text-muted-foreground mt-2">{profile.branches.name}</p>
                               )}
