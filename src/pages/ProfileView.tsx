@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
   MapPin, Briefcase, Mail, Linkedin, Phone, Facebook, 
-  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2, Shield 
+  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2, Shield, Pencil 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -19,9 +20,11 @@ import type { ProfileWithRelations } from '@/hooks/useProfiles';
 
 export default function ProfileView() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileAdmin, setIsProfileAdmin] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -45,6 +48,11 @@ export default function ProfileView() {
 
       if (error) throw error;
       setProfile(data as ProfileWithRelations);
+      
+      // Check if this is the current user's own profile
+      if (user && data?.user_id === user.id) {
+        setIsOwnProfile(true);
+      }
 
       // Check if profile user is an admin
       if (data?.user_id) {
@@ -116,12 +124,22 @@ export default function ProfileView() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Link to="/directory">
-                <Button variant="ghost" className="mb-6 hover:bg-primary/10">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Directory
-                </Button>
-              </Link>
+              <div className="flex items-center justify-between mb-6">
+                <Link to="/directory">
+                  <Button variant="ghost" className="hover:bg-primary/10">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Directory
+                  </Button>
+                </Link>
+                {isOwnProfile && (
+                  <Link to="/profile/edit">
+                    <Button variant="outline">
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit Profile
+                    </Button>
+                  </Link>
+                )}
+              </div>
             </motion.div>
 
             <motion.div
