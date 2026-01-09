@@ -35,9 +35,22 @@ export default function Directory() {
   }, []);
 
   const filteredProfiles = profiles.filter(profile => {
-    const matchesSearch = profile.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      profile.branches?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      profile.colleges?.name?.toLowerCase().includes(search.toLowerCase());
+    const searchTerm = search.toLowerCase();
+    const searchableFields = [
+      profile.full_name,
+      profile.branches?.name,
+      profile.colleges?.name,
+      profile.achievements,
+      profile.experience,
+      profile.projects,
+      profile.company,
+      profile.job_title,
+      profile.location_city,
+      profile.location_country,
+    ];
+    const matchesSearch = !search || searchableFields.some(
+      field => field?.toLowerCase().includes(searchTerm)
+    );
     const matchesType = typeFilter === 'all' || 
       profile.user_type === typeFilter || 
       (typeFilter === 'student' && (profile.user_type as string) === 'scholar');
