@@ -16,6 +16,8 @@ import AdminLogin from "./pages/AdminLogin";
 import Profile from "./pages/Profile";
 import ProfileView from "./pages/ProfileView";
 import ProfileEdit from "./pages/ProfileEdit";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/register" element={<Register />} />
