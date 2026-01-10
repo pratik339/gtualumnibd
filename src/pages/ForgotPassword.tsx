@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -6,22 +6,39 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, GraduationCap, ArrowLeft, Mail } from 'lucide-react';
+import { Loader2, GraduationCap, ArrowLeft, Mail, RefreshCw } from 'lucide-react';
 import { z } from 'zod';
 
-const emailSchema = z.string().email('Please enter a valid email address');
+const emailSchema = z.string()
+  .trim()
+  .email('Please enter a valid email address')
+  .max(255, 'Email must be less than 255 characters');
+
+const RESEND_COOLDOWN = 60; // seconds
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const { toast } = useToast();
 
-  const handleResetRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cooldown]);
 
+  const handleResetRequest = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+
+    // Validate email
+    const trimmedEmail = email.trim().toLowerCase();
+    
     try {
-      emailSchema.parse(email);
+      emailSchema.parse(trimmedEmail);
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
@@ -33,26 +50,51 @@ export default function ForgotPassword() {
       return;
     }
 
+    if (cooldown > 0) {
+      toast({
+        title: 'Please wait',
+        description: `You can resend the email in ${cooldown} seconds.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
 
     setLoading(false);
 
     if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      // Don't reveal if email exists or not for security
+      if (error.message.includes('rate limit')) {
+        toast({
+          title: 'Too Many Requests',
+          description: 'Please wait a few minutes before trying again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'An error occurred. Please try again later.',
+          variant: 'destructive',
+        });
+      }
     } else {
       setEmailSent(true);
+      setCooldown(RESEND_COOLDOWN);
       toast({
-        title: 'Email Sent',
-        description: 'Check your email for the password reset link.',
+        title: 'Reset Email Sent',
+        description: 'If an account exists with this email, you will receive a password reset link.',
       });
+    }
+  };
+
+  const handleResend = () => {
+    if (cooldown === 0) {
+      handleResetRequest();
     }
   };
 
@@ -80,36 +122,70 @@ export default function ForgotPassword() {
                   <Mail className="h-8 w-8 text-primary" />
                 </div>
               </div>
-              <p className="text-muted-foreground">
-                We've sent a password reset link to <strong>{email}</strong>. 
-                Please check your inbox and follow the instructions.
-              </p>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => setEmailSent(false)}
-              >
-                Try a different email
-              </Button>
-              <Link to="/auth" className="block">
-                <Button variant="ghost" className="w-full">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Sign In
+              <div className="space-y-2">
+                <p className="text-muted-foreground">
+                  If an account exists for <strong className="text-foreground">{email}</strong>, 
+                  you will receive an email with a password reset link.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Please check your inbox and spam folder.
+                </p>
+              </div>
+              
+              <div className="pt-2 space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={handleResend}
+                  disabled={cooldown > 0 || loading}
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                  )}
+                  {cooldown > 0 
+                    ? `Resend in ${cooldown}s` 
+                    : 'Resend Email'}
                 </Button>
-              </Link>
+                
+                <Button 
+                  variant="ghost" 
+                  className="w-full"
+                  onClick={() => {
+                    setEmailSent(false);
+                    setEmail('');
+                  }}
+                >
+                  Try a different email
+                </Button>
+                
+                <Link to="/auth" className="block">
+                  <Button variant="ghost" className="w-full">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Sign In
+                  </Button>
+                </Link>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleResetRequest} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  maxLength={255}
                   required
+                  autoComplete="email"
+                  autoFocus
                 />
+                <p className="text-xs text-muted-foreground">
+                  Enter the email address associated with your account
+                </p>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
