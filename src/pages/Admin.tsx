@@ -549,7 +549,7 @@ export default function Admin() {
                         <h3 className="text-xl font-bold">{viewProfile.full_name}</h3>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant={viewProfile.user_type === 'alumni' ? 'default' : 'secondary'}>
-                            {viewProfile.user_type === 'alumni' ? 'Alumni' : 'Student'}
+                            {viewProfile.user_type === 'alumni' ? 'Admin' : 'Student'}
                           </Badge>
                           <Badge variant={
                             viewProfile.status === 'approved' ? 'default' : 
