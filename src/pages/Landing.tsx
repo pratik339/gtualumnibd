@@ -137,9 +137,12 @@ export default function Landing() {
       {/* Hero Section with Campus Background */}
       <section className="relative py-24 md:py-40 overflow-hidden">
         {/* Background Image - visible in both themes */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-          backgroundImage: `url(${gtuCampus})`
-        }} />
+        <img 
+          src={gtuCampus} 
+          alt="GTU Campus" 
+          fetchPriority="high"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
         {/* Theme-adaptive overlay for visibility - stronger in light mode */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/90 to-white dark:from-background/90 dark:via-background/80 dark:to-background" />
         
