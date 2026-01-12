@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/layout/Layout';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
-import gtuCampus from '@/assets/gtu-campus.jpg';
+import gtuCampus from '@/assets/gtu-campus-optimized.webp';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import AlumniWorldMap from '@/components/AlumniWorldMap';

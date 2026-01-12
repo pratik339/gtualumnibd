@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useProfile } from '@/hooks/useProfile';
 import { motion } from 'framer-motion';
+import gtuLogo from '@/assets/gtu-logo-optimized.webp';
 export const Header = () => {
   const {
     user,
@@ -80,7 +81,7 @@ export const Header = () => {
           }} whileTap={{
             scale: 0.95
           }}>
-              <img alt="GTU Logo" className="h-full w-full object-contain p-0.5" src="/lovable-uploads/bdc99bc9-4820-4911-9a3b-56eb0be2af25.png" />
+              <img alt="GTU Logo" className="h-full w-full object-contain p-0.5" src={gtuLogo} width="56" height="56" loading="eager" />
             </motion.div>
             <div className="flex flex-col">
               <span className="font-bold text-lg sm:text-xl text-[hsl(220,50%,15%)] dark:text-foreground uppercase tracking-wide">
