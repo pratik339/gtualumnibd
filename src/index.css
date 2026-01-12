@@ -1,9 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Lora&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code&display=swap");
+/* Note: Google Fonts are loaded asynchronously in index.html to avoid render-blocking */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
