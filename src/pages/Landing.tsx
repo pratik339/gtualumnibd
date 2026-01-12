@@ -63,21 +63,21 @@ export default function Landing() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch approved profiles for stats
-        const {
-          data: profiles,
-          error
-        } = await supabase.from('profiles').select('user_type, location_country').eq('status', 'approved');
+        // Use public stats function that works for unauthenticated users
+        const { data, error } = await supabase.rpc('get_public_stats');
         if (error) throw error;
-        if (profiles) {
-          const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
-          const studentCount = profiles.filter(p => p.user_type === 'scholar' || p.user_type === 'student').length;
-          const countries = new Set(profiles.map(p => p.location_country).filter(Boolean));
+        if (data) {
+          const statsData = data as { 
+            alumni_count: number; 
+            student_count: number; 
+            countries_count: number; 
+            total_count: number; 
+          };
           setStats({
-            alumniCount,
-            studentCount,
-            countriesCount: countries.size,
-            totalCount: profiles.length
+            alumniCount: statsData.alumni_count || 0,
+            studentCount: statsData.student_count || 0,
+            countriesCount: statsData.countries_count || 0,
+            totalCount: statsData.total_count || 0
           });
         }
       } catch (error) {

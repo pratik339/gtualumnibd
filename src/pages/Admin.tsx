@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2, Eye } from 'lucide-react';
+import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2, Eye, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
@@ -31,6 +31,7 @@ export default function Admin() {
   const [deleteProfileId, setDeleteProfileId] = useState<string | null>(null);
   const [deleteProfileName, setDeleteProfileName] = useState<string>('');
   const [exportLoading, setExportLoading] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [viewProfile, setViewProfile] = useState<ProfileWithRelations | null>(null);
 
@@ -116,7 +117,12 @@ export default function Admin() {
     setBulkLoading(false);
   };
 
+  const openExportDialog = () => {
+    setExportDialogOpen(true);
+  };
+
   const handleExportToExcel = async () => {
+    setExportDialogOpen(false);
     setExportLoading(true);
     try {
       // Fetch all profiles with relations for export
@@ -138,10 +144,10 @@ export default function Admin() {
         return;
       }
 
-      // Transform data for Excel
+      // Transform data for Excel - respect visibility flags for sensitive data
       const excelData = data.map(profile => ({
         'Full Name': profile.full_name,
-        'Email': profile.email || '',
+        'Email': profile.email_visible ? (profile.email || '') : '[Hidden by user]',
         'User Type': profile.user_type,
         'Status': profile.status,
         'College': profile.colleges?.name || '',
@@ -157,9 +163,9 @@ export default function Admin() {
         'City': profile.location_city || '',
         'Company': profile.company || '',
         'Job Title': profile.job_title || '',
-        'LinkedIn': profile.linkedin_url || '',
-        'WhatsApp': profile.whatsapp_number || '',
-        'Facebook': profile.facebook_url || '',
+        'LinkedIn': profile.linkedin_visible ? (profile.linkedin_url || '') : '[Hidden by user]',
+        'WhatsApp': profile.whatsapp_visible ? (profile.whatsapp_number || '') : '[Hidden by user]',
+        'Facebook': profile.facebook_visible ? (profile.facebook_url || '') : '[Hidden by user]',
         'Enrollment Number': profile.enrollment_number || '',
         'Achievements': profile.achievements || '',
         'Experience': profile.experience || '',
@@ -287,7 +293,7 @@ export default function Admin() {
               
               {/* Export Button */}
               <Button 
-                onClick={handleExportToExcel} 
+                onClick={openExportDialog} 
                 disabled={exportLoading}
                 variant="outline"
                 className="gap-2"
@@ -520,6 +526,43 @@ export default function Admin() {
                   disabled={loadingId === deleteProfileId}
                 >
                   {loadingId === deleteProfileId ? 'Deleting...' : 'Delete Profile'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Export Warning Dialog */}
+          <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldAlert className="h-5 w-5 text-amber-500" />
+                  Export Sensitive Data
+                </DialogTitle>
+                <DialogDescription className="space-y-3 pt-2">
+                  <p>
+                    You are about to export user profile data. This export includes:
+                  </p>
+                  <ul className="list-disc list-inside text-sm space-y-1 text-muted-foreground">
+                    <li>User names, colleges, and branches</li>
+                    <li>Contact information (respecting user privacy settings)</li>
+                    <li>Enrollment numbers and profile details</li>
+                  </ul>
+                  <p className="font-medium text-amber-600 dark:text-amber-400">
+                    ⚠️ This data is sensitive. Please handle it responsibly and do not share it with unauthorized parties.
+                  </p>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setExportDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleExportToExcel}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Proceed with Export
                 </Button>
               </DialogFooter>
             </DialogContent>
