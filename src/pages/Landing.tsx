@@ -7,9 +7,11 @@ import { Layout } from '@/components/layout/Layout';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
 import gtuCampus from '@/assets/gtu-campus-optimized.webp';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import AlumniWorldMap from '@/components/AlumniWorldMap';
+
+// Lazy load heavy map component
+const AlumniWorldMap = lazy(() => import('@/components/AlumniWorldMap'));
 
 // Hand-drawn SVG decorations
 const ScribbleCircle = ({
@@ -50,6 +52,16 @@ interface Stats {
   countriesCount: number;
   totalCount: number;
 }
+// Loading skeleton for the map
+const MapLoadingSkeleton = () => (
+  <div className="w-full h-[350px] sm:h-[450px] md:h-[500px] rounded-xl bg-muted/50 animate-pulse flex items-center justify-center">
+    <div className="text-muted-foreground flex items-center gap-2">
+      <Globe className="w-6 h-6 animate-spin" />
+      <span>Loading world map...</span>
+    </div>
+  </div>
+);
+
 export default function Landing() {
   const {
     user
@@ -60,6 +72,10 @@ export default function Landing() {
     countriesCount: 0,
     totalCount: 0
   });
+  const [mapVisible, setMapVisible] = useState(false);
+  const mapSectionRef = useRef<HTMLDivElement>(null);
+
+  // Defer stats fetch to improve TTI
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -84,7 +100,33 @@ export default function Landing() {
         console.error('Error fetching stats:', error);
       }
     };
-    fetchStats();
+    
+    // Use requestIdleCallback to defer non-critical data fetching
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => fetchStats(), { timeout: 2000 });
+    } else {
+      // Fallback for browsers without requestIdleCallback
+      setTimeout(fetchStats, 100);
+    }
+  }, []);
+
+  // Intersection Observer for lazy loading the map
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setMapVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' } // Start loading slightly before visible
+    );
+
+    if (mapSectionRef.current) {
+      observer.observe(mapSectionRef.current);
+    }
+
+    return () => observer.disconnect();
   }, []);
   const features = [{
     icon: Users,
@@ -569,7 +611,7 @@ export default function Landing() {
       </section>
 
       {/* Alumni World Map Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section className="py-20 relative overflow-hidden" ref={mapSectionRef}>
         <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background" />
         
         {/* Decorative elements */}
@@ -611,7 +653,13 @@ export default function Landing() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <AlumniWorldMap />
+            {mapVisible ? (
+              <Suspense fallback={<MapLoadingSkeleton />}>
+                <AlumniWorldMap />
+              </Suspense>
+            ) : (
+              <MapLoadingSkeleton />
+            )}
           </motion.div>
         </div>
       </section>
