@@ -1,6 +1,6 @@
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { 
   MapPin, Briefcase, Mail, Linkedin, Phone, Facebook, 
-  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2, Shield, Pencil 
+  GraduationCap, Building, Calendar, Award, ArrowLeft, Loader2, Shield, Pencil, MessageCircle 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
@@ -21,10 +21,17 @@ import type { ProfileWithRelations } from '@/hooks/useProfiles';
 export default function ProfileView() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<ProfileWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileAdmin, setIsProfileAdmin] = useState(false);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  const handleStartChat = () => {
+    if (profile?.user_id) {
+      navigate(`/chat?user=${profile.user_id}`);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -131,13 +138,18 @@ export default function ProfileView() {
                     Back to Directory
                   </Button>
                 </Link>
-                {isOwnProfile && (
+                {isOwnProfile ? (
                   <Link to="/profile/edit">
                     <Button variant="outline">
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit Profile
                     </Button>
                   </Link>
+                ) : (
+                  <Button onClick={handleStartChat}>
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Message
+                  </Button>
                 )}
               </div>
             </motion.div>
