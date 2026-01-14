@@ -16,7 +16,7 @@ import { useHighCommissions } from '@/hooks/useHighCommissions';
 import { Loader2, GraduationCap, BookOpen, Upload } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema, validateImageFile } from '@/lib/validation';
+import { linkedinUrlSchema, facebookUrlSchema, whatsappNumberSchema, emailSchema, validateImageFile, TEXT_LIMITS, achievementsSchema, experienceSchema, projectsSchema, jobTitleSchema, companySchema, locationSchema, fullNameSchema, enrollmentNumberSchema } from '@/lib/validation';
 
 type UserType = 'alumni' | 'student';
 
@@ -102,22 +102,69 @@ export default function Register() {
     e.preventDefault();
     if (!user || !userType) return;
 
-    if (!formData.full_name.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please enter your full name.',
-        variant: 'destructive',
-      });
+    // Validate full name
+    const fullNameResult = fullNameSchema.safeParse(formData.full_name);
+    if (!fullNameResult.success) {
+      toast({ title: 'Invalid Name', description: fullNameResult.error.errors[0].message, variant: 'destructive' });
       return;
     }
 
-    if (userType === 'student' && !formData.enrollment_number.trim()) {
-      toast({
-        title: 'Missing Information',
-        description: 'Please enter your GTU Enrollment Number.',
-        variant: 'destructive',
-      });
+    // Validate enrollment number for students
+    if (userType === 'student') {
+      if (!formData.enrollment_number.trim()) {
+        toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
+        return;
+      }
+      const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
+      if (!enrollmentResult.success) {
+        toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
+    }
+
+    // Validate text field lengths
+    const achievementsResult = achievementsSchema.safeParse(formData.achievements);
+    if (!achievementsResult.success) {
+      toast({ title: 'Invalid Achievements', description: achievementsResult.error.errors[0].message, variant: 'destructive' });
       return;
+    }
+
+    const experienceResult = experienceSchema.safeParse(formData.experience);
+    if (!experienceResult.success) {
+      toast({ title: 'Invalid Experience', description: experienceResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+
+    const projectsResult = projectsSchema.safeParse(formData.projects);
+    if (!projectsResult.success) {
+      toast({ title: 'Invalid Projects', description: projectsResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+
+    if (userType === 'alumni') {
+      const jobTitleResult = jobTitleSchema.safeParse(formData.job_title);
+      if (!jobTitleResult.success) {
+        toast({ title: 'Invalid Job Title', description: jobTitleResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
+
+      const companyResult = companySchema.safeParse(formData.company);
+      if (!companyResult.success) {
+        toast({ title: 'Invalid Company', description: companyResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
+
+      const cityResult = locationSchema.safeParse(formData.location_city);
+      if (!cityResult.success) {
+        toast({ title: 'Invalid City', description: cityResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
+
+      const countryResult = locationSchema.safeParse(formData.location_country);
+      if (!countryResult.success) {
+        toast({ title: 'Invalid Country', description: countryResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
     }
 
     // Validate URLs before submission
@@ -455,7 +502,9 @@ export default function Register() {
                       value={formData.achievements}
                       onChange={(e) => setFormData({ ...formData, achievements: e.target.value })}
                       rows={3}
+                      maxLength={TEXT_LIMITS.achievements}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">{formData.achievements.length}/{TEXT_LIMITS.achievements}</p>
                   </div>
                   <div>
                     <Label htmlFor="experience">Experience</Label>
@@ -465,7 +514,9 @@ export default function Register() {
                       value={formData.experience}
                       onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
                       rows={3}
+                      maxLength={TEXT_LIMITS.experience}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">{formData.experience.length}/{TEXT_LIMITS.experience}</p>
                   </div>
                   <div>
                     <Label htmlFor="projects">Projects (If any)</Label>
@@ -475,7 +526,9 @@ export default function Register() {
                       value={formData.projects}
                       onChange={(e) => setFormData({ ...formData, projects: e.target.value })}
                       rows={3}
+                      maxLength={TEXT_LIMITS.projects}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">{formData.projects.length}/{TEXT_LIMITS.projects}</p>
                   </div>
                 </CardContent>
               </Card>
