@@ -1,5 +1,61 @@
 import { z } from 'zod';
 
+// Text field length limits
+export const TEXT_LIMITS = {
+  full_name: 100,
+  job_title: 200,
+  company: 200,
+  location_city: 100,
+  location_country: 100,
+  achievements: 5000,
+  experience: 5000,
+  projects: 5000,
+  rejection_reason: 2000,
+  enrollment_number: 50,
+} as const;
+
+// Text validation schemas with length limits
+export const fullNameSchema = z
+  .string()
+  .trim()
+  .min(1, { message: 'Full name is required' })
+  .max(TEXT_LIMITS.full_name, { message: `Full name must be less than ${TEXT_LIMITS.full_name} characters` });
+
+export const jobTitleSchema = z
+  .string()
+  .max(TEXT_LIMITS.job_title, { message: `Job title must be less than ${TEXT_LIMITS.job_title} characters` })
+  .or(z.literal(''));
+
+export const companySchema = z
+  .string()
+  .max(TEXT_LIMITS.company, { message: `Company must be less than ${TEXT_LIMITS.company} characters` })
+  .or(z.literal(''));
+
+export const locationSchema = z
+  .string()
+  .max(TEXT_LIMITS.location_city, { message: `Location must be less than ${TEXT_LIMITS.location_city} characters` })
+  .or(z.literal(''));
+
+export const achievementsSchema = z
+  .string()
+  .max(TEXT_LIMITS.achievements, { message: `Achievements must be less than ${TEXT_LIMITS.achievements} characters` })
+  .or(z.literal(''));
+
+export const experienceSchema = z
+  .string()
+  .max(TEXT_LIMITS.experience, { message: `Experience must be less than ${TEXT_LIMITS.experience} characters` })
+  .or(z.literal(''));
+
+export const projectsSchema = z
+  .string()
+  .max(TEXT_LIMITS.projects, { message: `Projects must be less than ${TEXT_LIMITS.projects} characters` })
+  .or(z.literal(''));
+
+export const enrollmentNumberSchema = z
+  .string()
+  .max(TEXT_LIMITS.enrollment_number, { message: `Enrollment number must be less than ${TEXT_LIMITS.enrollment_number} characters` })
+  .or(z.literal(''));
+
 // URL validation schemas
 export const linkedinUrlSchema = z
   .string()
@@ -89,4 +145,15 @@ export function sanitizeExternalUrl(url: string): string {
 // Sanitize WhatsApp number for URL
 export function sanitizeWhatsAppNumber(number: string): string {
   return number.replace(/\D/g, '');
+}
+
+// Validate text length helper
+export function validateTextLength(text: string, maxLength: number): { valid: boolean; error?: string } {
+  if (text.length > maxLength) {
+    return {
+      valid: false,
+      error: `Text must be less than ${maxLength} characters`,
+    };
+  }
+  return { valid: true };
 }
