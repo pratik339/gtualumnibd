@@ -1,41 +1,89 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { Layout } from '@/components/layout/Layout';
 import { PageTransition } from '@/components/ui/page-transition';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ChatList } from '@/components/chat/ChatList';
 import { ChatWindow } from '@/components/chat/ChatWindow';
 import { useChat } from '@/hooks/useChat';
-import { Loader2, MessageCircle } from 'lucide-react';
+import { useConnections } from '@/hooks/useConnections';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, MessageCircle, UserX, Users } from 'lucide-react';
 
 const Chat = () => {
   const [searchParams] = useSearchParams();
-  const { conversations, loading, startConversation, refetch } = useChat();
+  const { conversations, loading, startConversation } = useChat();
+  const { isConnected, loading: connectionsLoading } = useConnections();
+  const { toast } = useToast();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [notConnectedUser, setNotConnectedUser] = useState(false);
 
   // Handle starting a new conversation from URL params
   useEffect(() => {
     const userId = searchParams.get('user');
-    if (userId) {
-      startConversation(userId).then((convId) => {
-        if (convId) {
-          setSelectedId(convId);
-        }
-      });
+    if (userId && !connectionsLoading) {
+      // Check if connected before allowing chat
+      if (isConnected(userId)) {
+        startConversation(userId).then((convId) => {
+          if (convId) {
+            setSelectedId(convId);
+          }
+        });
+        setNotConnectedUser(false);
+      } else {
+        setNotConnectedUser(true);
+        toast({
+          title: 'Not connected',
+          description: 'You need to connect with this user before messaging.',
+          variant: 'destructive',
+        });
+      }
     }
-  }, [searchParams, startConversation]);
+  }, [searchParams, startConversation, isConnected, connectionsLoading, toast]);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId) || null;
 
-  if (loading) {
+  if (loading || connectionsLoading) {
     return (
       <ProtectedRoute>
         <Layout>
           <div className="flex items-center justify-center min-h-[60vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        </Layout>
+      </ProtectedRoute>
+    );
+  }
+
+  if (notConnectedUser) {
+    return (
+      <ProtectedRoute>
+        <Layout>
+          <PageTransition>
+            <div className="container mx-auto px-4 py-8">
+              <Card className="max-w-md mx-auto p-8 text-center">
+                <UserX className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+                <h2 className="text-xl font-semibold mb-2">Not Connected</h2>
+                <p className="text-muted-foreground mb-6">
+                  You need to be connected with this user before you can send messages.
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Link to="/directory">
+                    <Button variant="outline">Browse Directory</Button>
+                  </Link>
+                  <Link to="/connections">
+                    <Button>
+                      <Users className="h-4 w-4 mr-2" />
+                      My Network
+                    </Button>
+                  </Link>
+                </div>
+              </Card>
+            </div>
+          </PageTransition>
         </Layout>
       </ProtectedRoute>
     );
