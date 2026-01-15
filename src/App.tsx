@@ -24,6 +24,7 @@ const ProfileEdit = lazy(() => import("./pages/ProfileEdit"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Chat = lazy(() => import("./pages/Chat"));
+const Connections = lazy(() => import("./pages/Connections"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
                 <Route path="/profile/:id" element={<ProfileView />} />
                 <Route path="/profile/edit" element={<ProfileEdit />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/connections" element={<Connections />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

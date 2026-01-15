@@ -56,6 +56,33 @@ export type Database = {
         }
         Relationships: []
       }
+      connections: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["connection_status"]
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["connection_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       conversation_participants: {
         Row: {
           conversation_id: string
@@ -453,6 +480,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user"
       approval_status: "pending" | "approved" | "rejected"
+      connection_status: "pending" | "accepted" | "rejected"
       user_type: "alumni" | "scholar" | "student"
     }
     CompositeTypes: {
@@ -583,6 +611,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       approval_status: ["pending", "approved", "rejected"],
+      connection_status: ["pending", "accepted", "rejected"],
       user_type: ["alumni", "scholar", "student"],
     },
   },
