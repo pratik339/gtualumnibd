@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { useProfiles } from '@/hooks/useProfiles';
@@ -8,6 +9,7 @@ import {
 } from 'recharts';
 import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
 
 // Animated number counter
 const AnimatedCounter = ({ value }: { value: number }) => {
@@ -23,7 +25,25 @@ const AnimatedCounter = ({ value }: { value: number }) => {
 };
 
 export default function Analytics() {
-  const { profiles } = useProfiles({ status: 'approved' });
+  const { profiles: allProfiles } = useProfiles({ status: 'approved' });
+  const [adminUserIds, setAdminUserIds] = useState<string[]>([]);
+
+  // Fetch admin user IDs to exclude from analytics
+  useEffect(() => {
+    const fetchAdminIds = async () => {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+      if (data) {
+        setAdminUserIds(data.map(r => r.user_id));
+      }
+    };
+    fetchAdminIds();
+  }, []);
+
+  // Filter out admin users from profiles
+  const profiles = allProfiles.filter(p => !adminUserIds.includes(p.user_id));
 
   const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
   const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
