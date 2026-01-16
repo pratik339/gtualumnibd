@@ -120,11 +120,13 @@ export const useChat = () => {
       }
 
       // Create new conversation
-      const { data: newConvo, error: convoError } = await supabase
+      // NOTE: We generate the UUID client-side to avoid `.insert().select()` failing RLS
+      // (the conversation row isn't selectable until participants are inserted).
+      const conversationId = crypto.randomUUID();
+
+      const { error: convoError } = await supabase
         .from('conversations')
-        .insert({})
-        .select()
-        .single();
+        .insert({ id: conversationId });
 
       if (convoError) throw convoError;
 
@@ -132,14 +134,14 @@ export const useChat = () => {
       const { error: participantsError } = await supabase
         .from('conversation_participants')
         .insert([
-          { conversation_id: newConvo.id, user_id: user.id },
-          { conversation_id: newConvo.id, user_id: otherUserId },
+          { conversation_id: conversationId, user_id: user.id },
+          { conversation_id: conversationId, user_id: otherUserId },
         ]);
 
       if (participantsError) throw participantsError;
 
       await fetchConversations();
-      return newConvo.id;
+      return conversationId;
     } catch (error) {
       console.error('Error starting conversation:', error);
       return null;
