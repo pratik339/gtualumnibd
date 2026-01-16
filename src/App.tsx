@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/components/notifications/NotificationProvider";
 
 // Eagerly load the landing page for fast initial load
 import Landing from "./pages/Landing";
@@ -40,32 +41,34 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/admin-login" element={<AdminLogin />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/directory" element={<Directory />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:id" element={<ProfileView />} />
-                <Route path="/profile/edit" element={<ProfileEdit />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/connections" element={<Connections />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
+        <NotificationProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/admin-login" element={<AdminLogin />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/directory" element={<Directory />} />
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/:id" element={<ProfileView />} />
+                  <Route path="/profile/edit" element={<ProfileEdit />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/connections" element={<Connections />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </BrowserRouter>
+          </TooltipProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
