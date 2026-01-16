@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatWindowProps {
   conversation: Conversation | null;
@@ -18,15 +19,16 @@ export const ChatWindow = ({ conversation }: ChatWindowProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const otherParticipant = conversation?.participants.find(
     (p) => p.user_id !== user?.id
   );
 
+  // Scroll to bottom when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleSend = async (e: React.FormEvent) => {
@@ -37,6 +39,12 @@ export const ChatWindow = ({ conversation }: ChatWindowProps) => {
     const success = await sendMessage(newMessage);
     if (success) {
       setNewMessage('');
+    } else {
+      toast({
+        title: 'Failed to send message',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
     }
     setSending(false);
   };
@@ -67,7 +75,7 @@ export const ChatWindow = ({ conversation }: ChatWindowProps) => {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <ScrollArea className="flex-1 p-4">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -104,6 +112,7 @@ export const ChatWindow = ({ conversation }: ChatWindowProps) => {
                 </div>
               );
             })}
+            <div ref={messagesEndRef} />
           </div>
         )}
       </ScrollArea>
