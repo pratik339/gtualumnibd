@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useProfiles } from '@/hooks/useProfiles';
+import { useProfiles, ProfileWithRelations } from '@/hooks/useProfiles';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   PieChart, Pie, BarChart, Bar, LineChart, Line, XAxis, YAxis, 
@@ -10,6 +10,7 @@ import {
 import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import { AnalyticsDetailModal } from '@/components/analytics/AnalyticsDetailModal';
 
 // Animated number counter
 const AnimatedCounter = ({ value }: { value: number }) => {
@@ -24,9 +25,22 @@ const AnimatedCounter = ({ value }: { value: number }) => {
   );
 };
 
+type DrilldownType = 
+  | { type: 'alumni' }
+  | { type: 'students' }
+  | { type: 'scholars' }
+  | { type: 'branch'; value: string }
+  | { type: 'year'; value: string }
+  | { type: 'commission'; value: string }
+  | { type: 'college'; value: string }
+  | { type: 'location'; value: string }
+  | { type: 'total' }
+  | null;
+
 export default function Analytics() {
   const { profiles: allProfiles } = useProfiles({ status: 'approved' });
   const [adminUserIds, setAdminUserIds] = useState<string[]>([]);
+  const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
   // Fetch admin user IDs to exclude from analytics
   useEffect(() => {
@@ -49,9 +63,67 @@ export default function Analytics() {
   const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
 
   const typeData = [
-    { name: 'Alumni', value: alumniCount },
-    { name: 'Students', value: studentCount },
+    { name: 'Alumni', value: alumniCount, type: 'alumni' as const },
+    { name: 'Students', value: studentCount, type: 'students' as const },
   ].filter(d => d.value > 0);
+
+  // Get filtered profiles based on drilldown selection
+  const getFilteredProfiles = (): ProfileWithRelations[] => {
+    if (!drilldown) return [];
+    
+    switch (drilldown.type) {
+      case 'total':
+        return profiles;
+      case 'alumni':
+        return profiles.filter(p => p.user_type === 'alumni');
+      case 'students':
+        return profiles.filter(p => p.user_type === 'student' || p.user_type === 'scholar');
+      case 'scholars':
+        return profiles.filter(p => p.scholarship_year);
+      case 'branch':
+        return profiles.filter(p => p.branches?.name === drilldown.value);
+      case 'year':
+        return profiles.filter(p => 
+          (p.passout_year?.toString() === drilldown.value) || 
+          (p.expected_passout_year?.toString() === drilldown.value)
+        );
+      case 'commission':
+        return profiles.filter(p => p.high_commissions?.name === drilldown.value);
+      case 'college':
+        return profiles.filter(p => p.colleges?.name === drilldown.value);
+      case 'location':
+        return profiles.filter(p => p.location_country === drilldown.value);
+      default:
+        return [];
+    }
+  };
+
+  const getDrilldownTitle = (): string => {
+    if (!drilldown) return '';
+    
+    switch (drilldown.type) {
+      case 'total':
+        return 'All Members';
+      case 'alumni':
+        return 'Alumni';
+      case 'students':
+        return 'Current Students';
+      case 'scholars':
+        return 'Scholarship Recipients';
+      case 'branch':
+        return `Branch: ${drilldown.value}`;
+      case 'year':
+        return `Year: ${drilldown.value}`;
+      case 'commission':
+        return `High Commission: ${drilldown.value}`;
+      case 'college':
+        return `College: ${drilldown.value}`;
+      case 'location':
+        return `Location: ${drilldown.value}`;
+      default:
+        return '';
+    }
+  };
 
   // Branch distribution
   const branchData = profiles.reduce((acc, profile) => {
@@ -176,12 +248,12 @@ export default function Analytics() {
   };
 
   const statsCards = [
-    { label: 'Total Members', value: profiles.length, icon: Users, color: 'from-primary/20 to-primary/5', description: 'Approved profiles' },
-    { label: 'Alumni', value: alumniCount, icon: GraduationCap, color: 'from-chart-1/20 to-chart-1/5', description: 'Graduated members' },
-    { label: 'Current Students', value: studentCount, icon: BookOpen, color: 'from-chart-2/20 to-chart-2/5', description: 'Active students' },
-    { label: 'Countries', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'Global presence' },
-    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions' },
-    { label: 'Scholarships', value: profiles.filter(p => p.scholarship_year).length, icon: Award, color: 'from-chart-5/20 to-chart-5/5', description: 'Scholars awarded' },
+    { label: 'Total Members', value: profiles.length, icon: Users, color: 'from-primary/20 to-primary/5', description: 'Approved profiles', onClick: () => setDrilldown({ type: 'total' }) },
+    { label: 'Alumni', value: alumniCount, icon: GraduationCap, color: 'from-chart-1/20 to-chart-1/5', description: 'Graduated members', onClick: () => setDrilldown({ type: 'alumni' }) },
+    { label: 'Current Students', value: studentCount, icon: BookOpen, color: 'from-chart-2/20 to-chart-2/5', description: 'Active students', onClick: () => setDrilldown({ type: 'students' }) },
+    { label: 'Countries', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'Global presence', onClick: undefined },
+    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions', onClick: undefined },
+    { label: 'Scholarships', value: profiles.filter(p => p.scholarship_year).length, icon: Award, color: 'from-chart-5/20 to-chart-5/5', description: 'Scholars awarded', onClick: () => setDrilldown({ type: 'scholars' }) },
   ];
 
   return (
@@ -220,7 +292,10 @@ export default function Analytics() {
           >
             {statsCards.map((stat, index) => (
               <motion.div key={stat.label} variants={itemVariants}>
-                <Card className={`relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group`}>
+                <Card 
+                  className={`relative overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group ${stat.onClick ? 'cursor-pointer' : ''}`}
+                  onClick={stat.onClick}
+                >
                   <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-50 group-hover:opacity-70 transition-opacity`} />
                   <CardContent className="pt-4 pb-3 relative">
                     <div className="flex items-center justify-between mb-2">
@@ -236,6 +311,11 @@ export default function Analytics() {
                     </div>
                     <p className="text-xs font-medium">{stat.label}</p>
                     <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    {stat.onClick && (
+                      <p className="text-xs text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        Click to view list →
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -282,6 +362,11 @@ export default function Analytics() {
                             dataKey="value"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                             labelLine={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1 }}
+                            onClick={(data) => {
+                              if (data.type === 'alumni') setDrilldown({ type: 'alumni' });
+                              else if (data.type === 'students') setDrilldown({ type: 'students' });
+                            }}
+                            style={{ cursor: 'pointer' }}
                           >
                             {typeData.map((_, index) => (
                               <Cell 
@@ -289,6 +374,7 @@ export default function Analytics() {
                                 fill={`url(#pieGradient-${index})`}
                                 stroke="hsl(var(--background))"
                                 strokeWidth={2}
+                                className="cursor-pointer hover:opacity-80 transition-opacity"
                               />
                             ))}
                           </Pie>
@@ -337,6 +423,8 @@ export default function Analytics() {
                             paddingAngle={5}
                             dataKey="value"
                             label={({ name, value }) => `${name.slice(0, 10)}${name.length > 10 ? '...' : ''}: ${value}`}
+                            onClick={(data) => setDrilldown({ type: 'commission', value: data.name })}
+                            style={{ cursor: 'pointer' }}
                           >
                             {commissionChartData.map((_, index) => (
                               <Cell 
@@ -344,6 +432,7 @@ export default function Analytics() {
                                 fill={COLORS[index % COLORS.length]}
                                 stroke="hsl(var(--background))"
                                 strokeWidth={2}
+                                className="cursor-pointer hover:opacity-80 transition-opacity"
                               />
                             ))}
                           </Pie>
@@ -380,7 +469,11 @@ export default function Analytics() {
                   <div className="h-72">
                     {yearChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={yearChartData}>
+                        <AreaChart 
+                          data={yearChartData}
+                          onClick={(data) => data?.activePayload?.[0] && setDrilldown({ type: 'year', value: data.activePayload[0].payload.name })}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <defs>
                             <linearGradient id="yearGradient" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
@@ -450,6 +543,8 @@ export default function Analytics() {
                             dataKey="value" 
                             fill="url(#branchGradient)" 
                             radius={[0, 6, 6, 0]}
+                            onClick={(data) => setDrilldown({ type: 'branch', value: data.name })}
+                            style={{ cursor: 'pointer' }}
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -538,9 +633,14 @@ export default function Analytics() {
                               borderRadius: '8px'
                             }}
                           />
-                          <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                          <Bar 
+                            dataKey="value" 
+                            radius={[0, 6, 6, 0]}
+                            onClick={(data) => setDrilldown({ type: 'college', value: data.fullName || data.name })}
+                            style={{ cursor: 'pointer' }}
+                          >
                             {collegeChartData.map((_, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="cursor-pointer hover:opacity-80 transition-opacity" />
                             ))}
                           </Bar>
                         </BarChart>
@@ -589,6 +689,8 @@ export default function Analytics() {
                             dataKey="value" 
                             fill="url(#locationGradient)" 
                             radius={[6, 6, 0, 0]}
+                            onClick={(data) => setDrilldown({ type: 'location', value: data.name })}
+                            style={{ cursor: 'pointer' }}
                           />
                         </BarChart>
                       </ResponsiveContainer>
@@ -603,6 +705,14 @@ export default function Analytics() {
             </motion.div>
           </motion.div>
         </div>
+
+        {/* Drilldown Modal */}
+        <AnalyticsDetailModal
+          open={drilldown !== null}
+          onOpenChange={(open) => !open && setDrilldown(null)}
+          title={getDrilldownTitle()}
+          profiles={getFilteredProfiles()}
+        />
       </Layout>
     </ProtectedRoute>
   );
