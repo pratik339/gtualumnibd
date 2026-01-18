@@ -608,45 +608,41 @@ export default function Analytics() {
               </Card>
             </motion.div>
 
-            {/* College Distribution */}
+            {/* College Distribution - List View */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building2 className="h-5 w-5 text-primary" />
-                    By College
+                    Students by College
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64">
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                     {collegeChartData.length > 0 ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={collegeChartData} layout="vertical">
-                          <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                          <XAxis type="number" tick={{ fontSize: 11 }} />
-                          <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 9 }} />
-                          <Tooltip 
-                            formatter={(value, name, props) => [value, props.payload.fullName || name]}
-                            contentStyle={{ 
-                              background: 'hsl(var(--popover))', 
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
-                            }}
-                          />
-                          <Bar 
-                            dataKey="value" 
-                            radius={[0, 6, 6, 0]}
-                            onClick={(data) => setDrilldown({ type: 'college', value: data.fullName || data.name })}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {collegeChartData.map((_, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} className="cursor-pointer hover:opacity-80 transition-opacity" />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                      collegeChartData.map((college, index) => (
+                        <div
+                          key={college.fullName}
+                          onClick={() => setDrilldown({ type: 'college', value: college.fullName })}
+                          className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors group"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div 
+                              className="w-3 h-3 rounded-full shrink-0" 
+                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                            />
+                            <span className="font-medium truncate" title={college.fullName}>
+                              {college.fullName}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-lg font-bold text-primary">{college.value}</span>
+                            <span className="text-xs text-muted-foreground">students</span>
+                          </div>
+                        </div>
+                      ))
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-32 flex items-center justify-center text-muted-foreground">
                         No college data available
                       </div>
                     )}
