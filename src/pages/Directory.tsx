@@ -6,19 +6,27 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState, useEffect } from 'react';
-import { Search, MapPin, Briefcase, Mail, Linkedin, Shield } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Search, MapPin, Briefcase, Mail, Linkedin, Shield, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PageTransition, staggerContainer, fadeInUp } from '@/components/ui/page-transition';
 import { sanitizeExternalUrl } from '@/lib/validation';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 
 export default function Directory() {
   const { profiles, loading } = useProfiles({ status: 'approved', useSecureView: true });
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
+
+  // Debounce search for performance
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 150);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   // Fetch admin user IDs
   useEffect(() => {
@@ -34,28 +42,54 @@ export default function Directory() {
     fetchAdminIds();
   }, []);
 
-  const filteredProfiles = profiles.filter(profile => {
-    const searchTerm = search.toLowerCase();
-    const searchableFields = [
-      profile.full_name,
-      profile.branches?.name,
-      profile.colleges?.name,
-      profile.achievements,
-      profile.experience,
-      profile.projects,
-      profile.company,
-      profile.job_title,
-      profile.location_city,
-      profile.location_country,
-    ];
-    const matchesSearch = !search || searchableFields.some(
-      field => field?.toLowerCase().includes(searchTerm)
-    );
-    const matchesType = typeFilter === 'all' || 
-      profile.user_type === typeFilter || 
-      (typeFilter === 'student' && (profile.user_type as string) === 'scholar');
-    return matchesSearch && matchesType;
-  });
+  // Pre-compute searchable text for each profile (memoized)
+  const profilesWithSearchText = useMemo(() => {
+    return profiles.map(profile => {
+      // Combine all searchable fields into one lowercase string
+      const searchableText = [
+        profile.full_name,
+        profile.branches?.name,
+        profile.branches?.code,
+        profile.colleges?.name,
+        profile.colleges?.city,
+        profile.high_commissions?.name,
+        profile.high_commissions?.country,
+        profile.achievements,
+        profile.experience,
+        profile.projects,
+        profile.company,
+        profile.job_title,
+        profile.location_city,
+        profile.location_country,
+        profile.enrollment_number,
+        profile.passout_year?.toString(),
+        profile.expected_passout_year?.toString(),
+        profile.scholarship_year?.toString(),
+        profile.user_type,
+      ].filter(Boolean).join(' ').toLowerCase();
+      
+      return { ...profile, _searchText: searchableText };
+    });
+  }, [profiles]);
+
+  // Super efficient filtering with multi-word support
+  const filteredProfiles = useMemo(() => {
+    const searchTerms = debouncedSearch.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    
+    return profilesWithSearchText.filter(profile => {
+      // Multi-word search: ALL terms must match
+      const matchesSearch = searchTerms.length === 0 || 
+        searchTerms.every(term => profile._searchText.includes(term));
+      
+      const matchesType = typeFilter === 'all' || 
+        profile.user_type === typeFilter || 
+        (typeFilter === 'student' && (profile.user_type as string) === 'scholar');
+      
+      return matchesSearch && matchesType;
+    });
+  }, [profilesWithSearchText, debouncedSearch, typeFilter]);
+
+  const clearSearch = useCallback(() => setSearch(''), []);
 
   return (
     <ProtectedRoute>
@@ -80,11 +114,21 @@ export default function Directory() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by name, skills, projects, experience, company..."
+                  placeholder="Search anything: name, skills, projects, company, city, year..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-10"
                 />
+                {search && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                    onClick={clearSearch}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full sm:w-48">
@@ -97,6 +141,17 @@ export default function Directory() {
                 </SelectContent>
               </Select>
             </motion.div>
+
+            {/* Results count */}
+            {!loading && debouncedSearch && (
+              <motion.p 
+                className="text-sm text-muted-foreground mb-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                Found {filteredProfiles.length} result{filteredProfiles.length !== 1 ? 's' : ''} for "{debouncedSearch}"
+              </motion.p>
+            )}
 
             {loading ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
