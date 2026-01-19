@@ -109,7 +109,18 @@ export default function Register() {
       return;
     }
 
-    // Validate enrollment number for students
+    // Validate required fields for all users
+    if (!formData.college_id) {
+      toast({ title: 'Missing Information', description: 'Please select your college.', variant: 'destructive' });
+      return;
+    }
+
+    if (!formData.branch_id) {
+      toast({ title: 'Missing Information', description: 'Please select your branch.', variant: 'destructive' });
+      return;
+    }
+
+    // Validate required fields for students
     if (userType === 'student') {
       if (!formData.enrollment_number.trim()) {
         toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
@@ -118,6 +129,11 @@ export default function Register() {
       const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
       if (!enrollmentResult.success) {
         toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
+        return;
+      }
+
+      if (!formData.current_semester) {
+        toast({ title: 'Missing Information', description: 'Please select your current semester.', variant: 'destructive' });
         return;
       }
     }
@@ -391,11 +407,13 @@ export default function Register() {
                   <CollegeSelector
                     value={formData.college_id}
                     onChange={(value) => setFormData({ ...formData, college_id: value })}
+                    required
                   />
 
                   <BranchSelector
                     value={formData.branch_id}
                     onChange={(value) => setFormData({ ...formData, branch_id: value })}
+                    required
                   />
 
                   {userType === 'alumni' ? (
@@ -423,7 +441,7 @@ export default function Register() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="current_semester">Current Semester</Label>
+                        <Label htmlFor="current_semester">Current Semester *</Label>
                         <Input
                           id="current_semester"
                           type="number"
@@ -431,6 +449,7 @@ export default function Register() {
                           max="8"
                           value={formData.current_semester}
                           onChange={(e) => setFormData({ ...formData, current_semester: e.target.value })}
+                          required
                         />
                       </div>
                       <div>
