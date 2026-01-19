@@ -1,1 +1,4 @@
 project_id = "qdprxteseqruvfcezvll"
+
+[functions.semester-progression]
+verify_jwt = false
