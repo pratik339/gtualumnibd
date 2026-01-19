@@ -12,9 +12,10 @@ interface BranchSelectorProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  required?: boolean;
 }
 
-export function BranchSelector({ value, onChange, label = "Branch / Discipline" }: BranchSelectorProps) {
+export function BranchSelector({ value, onChange, label = "Branch / Discipline", required = false }: BranchSelectorProps) {
   const { branches, refetch } = useBranches();
   const { toast } = useToast();
   const [showOtherInput, setShowOtherInput] = useState(false);
@@ -85,7 +86,7 @@ export function BranchSelector({ value, onChange, label = "Branch / Discipline" 
 
   return (
     <div className="space-y-3">
-      <Label>{label}</Label>
+      <Label>{label} {required && <span className="text-destructive">*</span>}</Label>
       
       {!showOtherInput ? (
         <Select value={value} onValueChange={handleSelectChange}>

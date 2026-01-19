@@ -12,9 +12,10 @@ interface CollegeSelectorProps {
   value: string;
   onChange: (value: string) => void;
   label?: string;
+  required?: boolean;
 }
 
-export function CollegeSelector({ value, onChange, label = "Affiliated College" }: CollegeSelectorProps) {
+export function CollegeSelector({ value, onChange, label = "Affiliated College", required = false }: CollegeSelectorProps) {
   const { colleges, refetch } = useColleges();
   const { toast } = useToast();
   const [showOtherInput, setShowOtherInput] = useState(false);
@@ -85,7 +86,7 @@ export function CollegeSelector({ value, onChange, label = "Affiliated College" 
 
   return (
     <div className="space-y-3">
-      <Label>{label}</Label>
+      <Label>{label} {required && <span className="text-destructive">*</span>}</Label>
       
       {!showOtherInput ? (
         <Select value={value} onValueChange={handleSelectChange}>
