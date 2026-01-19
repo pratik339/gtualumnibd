@@ -14,6 +14,7 @@ import { PageTransition, staggerContainer, fadeInUp } from '@/components/ui/page
 import { sanitizeExternalUrl } from '@/lib/validation';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { SemesterBadge } from '@/components/SemesterBadge';
 
 export default function Directory() {
   const { profiles, loading } = useProfiles({ status: 'approved', useSecureView: true });
@@ -211,9 +212,12 @@ export default function Directory() {
                                   Admin
                                 </Badge>
                               ) : (
-                                <Badge variant={profile.user_type === 'alumni' ? 'default' : 'secondary'} className="mt-1">
-                                  {profile.user_type === 'alumni' ? 'Alumni' : 'Student'}
-                                </Badge>
+                                <SemesterBadge 
+                                  userType={profile.user_type as 'alumni' | 'scholar' | 'student'}
+                                  currentSemester={profile.current_semester}
+                                  passoutYear={profile.passout_year}
+                                  className="mt-1"
+                                />
                               )}
                               {profile.branches?.name && (
                                 <p className="text-sm text-muted-foreground mt-2">{profile.branches.name}</p>
