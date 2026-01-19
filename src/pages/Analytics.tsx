@@ -40,6 +40,7 @@ type DrilldownType =
 export default function Analytics() {
   const { profiles: allProfiles } = useProfiles({ status: 'approved' });
   const [adminUserIds, setAdminUserIds] = useState<string[]>([]);
+  const [adminIdsLoaded, setAdminIdsLoaded] = useState(false);
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
 
   // Fetch admin user IDs to exclude from analytics
@@ -52,13 +53,17 @@ export default function Analytics() {
       if (data) {
         setAdminUserIds(data.map(r => r.user_id));
       }
+      setAdminIdsLoaded(true);
     };
     fetchAdminIds();
   }, []);
 
-  // Filter out admin users from profiles
-  const profiles = allProfiles.filter(p => !adminUserIds.includes(p.user_id));
+  // Filter out admin users from profiles (only after admin IDs are loaded)
+  const profiles = adminIdsLoaded 
+    ? allProfiles.filter(p => !adminUserIds.includes(p.user_id))
+    : [];
 
+  // Alumni count excludes admins (admins are already filtered out of profiles)
   const alumniCount = profiles.filter(p => p.user_type === 'alumni').length;
   const studentCount = profiles.filter(p => (p.user_type as string) === 'student' || p.user_type === 'scholar').length;
 
