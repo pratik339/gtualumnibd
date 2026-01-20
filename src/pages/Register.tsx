@@ -40,7 +40,9 @@ export default function Register() {
     passout_year: '',
     current_semester: '',
     expected_passout_year: '',
+    funding_type: 'iccr' as 'iccr' | 'self_funded',
     scholarship_year: '',
+    joining_year: '',
     high_commission_id: '',
     achievements: '',
     experience: '',
@@ -136,6 +138,12 @@ export default function Register() {
         toast({ title: 'Missing Information', description: 'Please select your current semester.', variant: 'destructive' });
         return;
       }
+    }
+
+    // Validate joining year for self-funded students
+    if (formData.funding_type === 'self_funded' && !formData.joining_year) {
+      toast({ title: 'Missing Information', description: 'Please enter your joining year.', variant: 'destructive' });
+      return;
     }
 
     // Validate text field lengths
@@ -235,8 +243,10 @@ export default function Register() {
         passout_year: formData.passout_year ? parseInt(formData.passout_year) : null,
         current_semester: formData.current_semester ? parseInt(formData.current_semester) : null,
         expected_passout_year: formData.expected_passout_year ? parseInt(formData.expected_passout_year) : null,
-        scholarship_year: formData.scholarship_year ? parseInt(formData.scholarship_year) : null,
-        high_commission_id: formData.high_commission_id || null,
+        funding_type: formData.funding_type,
+        scholarship_year: formData.funding_type === 'iccr' && formData.scholarship_year ? parseInt(formData.scholarship_year) : null,
+        joining_year: formData.funding_type === 'self_funded' && formData.joining_year ? parseInt(formData.joining_year) : null,
+        high_commission_id: formData.funding_type === 'iccr' ? formData.high_commission_id || null : null,
         achievements: formData.achievements || null,
         experience: formData.experience || null,
         projects: formData.projects || null,
@@ -468,42 +478,75 @@ export default function Register() {
                 </CardContent>
               </Card>
 
-              {/* Scholarship Information */}
+              {/* Funding Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Scholarship Information</CardTitle>
+                  <CardTitle>Funding Information</CardTitle>
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-4">
+                <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="scholarship_year">Scholarship Year</Label>
-                    <Input
-                      id="scholarship_year"
-                      type="number"
-                      min="1990"
-                      max={new Date().getFullYear()}
-                      value={formData.scholarship_year}
-                      onChange={(e) => setFormData({ ...formData, scholarship_year: e.target.value })}
-                    />
-                  </div>
-
-                  <div>
-                    <Label>High Commission / Sponsor</Label>
+                    <Label>Funding Type *</Label>
                     <Select
-                      value={formData.high_commission_id}
-                      onValueChange={(value) => setFormData({ ...formData, high_commission_id: value })}
+                      value={formData.funding_type}
+                      onValueChange={(value: 'iccr' | 'self_funded') => setFormData({ ...formData, funding_type: value, scholarship_year: '', joining_year: '', high_commission_id: '' })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select sponsor" />
+                        <SelectValue placeholder="Select funding type" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover">
-                        {highCommissions.map((hc) => (
-                          <SelectItem key={hc.id} value={hc.id}>
-                            {hc.name} {hc.country && `(${hc.country})`}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="iccr">ICCR Scholarship</SelectItem>
+                        <SelectItem value="self_funded">Self Funded</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {formData.funding_type === 'iccr' ? (
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="scholarship_year">Scholarship Year</Label>
+                        <Input
+                          id="scholarship_year"
+                          type="number"
+                          min="1990"
+                          max={new Date().getFullYear()}
+                          value={formData.scholarship_year}
+                          onChange={(e) => setFormData({ ...formData, scholarship_year: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>High Commission / Sponsor</Label>
+                        <Select
+                          value={formData.high_commission_id}
+                          onValueChange={(value) => setFormData({ ...formData, high_commission_id: value })}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select sponsor" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover">
+                            {highCommissions.map((hc) => (
+                              <SelectItem key={hc.id} value={hc.id}>
+                                {hc.name} {hc.country && `(${hc.country})`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <Label htmlFor="joining_year">Joining Year *</Label>
+                      <Input
+                        id="joining_year"
+                        type="number"
+                        min="1990"
+                        max={new Date().getFullYear()}
+                        value={formData.joining_year}
+                        onChange={(e) => setFormData({ ...formData, joining_year: e.target.value })}
+                        required
+                      />
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
