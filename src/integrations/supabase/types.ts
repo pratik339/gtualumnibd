@@ -205,9 +205,11 @@ export type Database = {
           facebook_url: string | null
           facebook_visible: boolean | null
           full_name: string
+          funding_type: string | null
           high_commission_id: string | null
           id: string
           job_title: string | null
+          joining_year: number | null
           linkedin_url: string | null
           linkedin_visible: boolean | null
           location_city: string | null
@@ -239,9 +241,11 @@ export type Database = {
           facebook_url?: string | null
           facebook_visible?: boolean | null
           full_name: string
+          funding_type?: string | null
           high_commission_id?: string | null
           id?: string
           job_title?: string | null
+          joining_year?: number | null
           linkedin_url?: string | null
           linkedin_visible?: boolean | null
           location_city?: string | null
@@ -273,9 +277,11 @@ export type Database = {
           facebook_url?: string | null
           facebook_visible?: boolean | null
           full_name?: string
+          funding_type?: string | null
           high_commission_id?: string | null
           id?: string
           job_title?: string | null
+          joining_year?: number | null
           linkedin_url?: string | null
           linkedin_visible?: boolean | null
           location_city?: string | null
