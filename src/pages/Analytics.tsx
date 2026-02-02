@@ -130,17 +130,28 @@ export default function Analytics() {
     }
   };
 
-  // Branch distribution
+  // Branch distribution with code for shorter labels
   const branchData = profiles.reduce((acc, profile) => {
-    const branch = profile.branches?.name || 'Unknown';
-    acc[branch] = (acc[branch] || 0) + 1;
+    if (profile.branches?.name) {
+      const branchName = profile.branches.name;
+      const branchCode = profile.branches.code || branchName.slice(0, 6);
+      if (!acc[branchName]) {
+        acc[branchName] = { count: 0, code: branchCode };
+      }
+      acc[branchName].count += 1;
+    }
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, { count: number; code: string }>);
 
   const branchChartData = Object.entries(branchData)
-    .map(([name, value]) => ({ name, value }))
+    .map(([name, data]) => ({ 
+      name, 
+      shortName: data.code || name.slice(0, 8),
+      value: data.count 
+    }))
+    .filter(d => d.value > 0)
     .sort((a, b) => b.value - a.value)
-    .slice(0, 8);
+    .slice(0, 10);
 
   // Year distribution
   const yearData = profiles
@@ -514,48 +525,78 @@ export default function Analytics() {
               </Card>
             </motion.div>
 
-            {/* Branch Distribution */}
-            <motion.div variants={cardVariants}>
+            {/* Branch Distribution - Improved Horizontal Bar Chart */}
+            <motion.div variants={cardVariants} className="md:col-span-2">
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-chart-4/10 to-transparent rounded-bl-full" />
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BookOpen className="h-5 w-5 text-primary" />
-                    By Branch
+                    Distribution by Branch
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64">
+                  <div className="h-80">
                     {branchChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={branchChartData} layout="vertical">
+                        <BarChart 
+                          data={branchChartData} 
+                          layout="vertical"
+                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                        >
                           <defs>
-                            <linearGradient id="branchGradient" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.4}/>
-                            </linearGradient>
+                            {branchChartData.map((_, index) => (
+                              <linearGradient key={`branchGrad-${index}`} id={`branchGradient-${index}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={COLORS[index % COLORS.length]} stopOpacity={0.9}/>
+                                <stop offset="100%" stopColor={COLORS[index % COLORS.length]} stopOpacity={0.5}/>
+                              </linearGradient>
+                            ))}
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
-                          <XAxis type="number" tick={{ fontSize: 11 }} />
-                          <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} />
+                          <XAxis 
+                            type="number" 
+                            tick={{ fontSize: 11 }} 
+                            allowDecimals={false}
+                          />
+                          <YAxis 
+                            dataKey="shortName" 
+                            type="category" 
+                            width={70} 
+                            tick={{ fontSize: 11 }}
+                            tickLine={false}
+                          />
                           <Tooltip 
                             contentStyle={{ 
                               background: 'hsl(var(--popover))', 
                               border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                             }}
+                            formatter={(value: number, name: string, props: { payload: { name: string } }) => [
+                              `${value} members`, 
+                              props.payload.name
+                            ]}
+                            labelFormatter={() => ''}
                           />
                           <Bar 
                             dataKey="value" 
-                            fill="url(#branchGradient)" 
-                            radius={[0, 6, 6, 0]}
+                            radius={[0, 8, 8, 0]}
                             onClick={(data) => setDrilldown({ type: 'branch', value: data.name })}
                             style={{ cursor: 'pointer' }}
-                          />
+                          >
+                            {branchChartData.map((_, index) => (
+                              <Cell 
+                                key={`cell-${index}`} 
+                                fill={`url(#branchGradient-${index})`}
+                                className="hover:opacity-80 transition-opacity"
+                              />
+                            ))}
+                          </Bar>
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="h-full flex items-center justify-center text-muted-foreground">
-                        No data available
+                        No branch data available
                       </div>
                     )}
                   </div>
