@@ -275,36 +275,36 @@ export default function Analytics() {
   return (
     <ProtectedRoute>
       <Layout>
-        <div className="container py-8">
+        <div className="container px-4 sm:px-6 py-4 sm:py-8">
           {/* Header with animation */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-8"
+            className="mb-4 sm:mb-8"
           >
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
               <motion.div
                 animate={{ rotate: [0, 10, -10, 0] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               >
-                <Sparkles className="h-8 w-8 text-primary" />
+                <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
               </motion.div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
                 Analytics Dashboard
               </h1>
             </div>
-            <p className="text-muted-foreground">
-              Community insights and statistics • Updates in real-time
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Community insights • Real-time updates
             </p>
           </motion.div>
 
-          {/* Stats Cards Grid */}
+          {/* Stats Cards Grid - 3 columns on mobile for compact view */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8"
+            className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-8"
           >
             {statsCards.map((stat, index) => (
               <motion.div key={stat.label} variants={itemVariants}>
@@ -313,23 +313,23 @@ export default function Analytics() {
                   onClick={stat.onClick}
                 >
                   <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-50 group-hover:opacity-70 transition-opacity`} />
-                  <CardContent className="pt-4 pb-3 relative">
-                    <div className="flex items-center justify-between mb-2">
-                      <stat.icon className="h-5 w-5 text-primary" />
+                  <CardContent className="p-2 sm:pt-4 sm:pb-3 sm:px-4 relative">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1 sm:mb-2">
+                      <stat.icon className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary mb-1 sm:mb-0" />
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.2 + index * 0.1, type: "spring", stiffness: 200 }}
-                        className="text-2xl font-bold"
+                        className="text-lg sm:text-2xl font-bold"
                       >
                         <AnimatedCounter value={stat.value} />
                       </motion.div>
                     </div>
-                    <p className="text-xs font-medium">{stat.label}</p>
-                    <p className="text-xs text-muted-foreground">{stat.description}</p>
+                    <p className="text-[10px] sm:text-xs font-medium leading-tight">{stat.label}</p>
+                    <p className="text-[9px] sm:text-xs text-muted-foreground hidden sm:block">{stat.description}</p>
                     {stat.onClick && (
-                      <p className="text-xs text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        Click to view list →
+                      <p className="text-[9px] sm:text-xs text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
+                        Click to view →
                       </p>
                     )}
                   </CardContent>
@@ -343,20 +343,20 @@ export default function Analytics() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="grid md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6"
           >
             {/* Member Distribution - Donut Chart */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
+                <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-bl-full" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Member Distribution
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-64">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-48 sm:h-64">
                     {typeData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -372,8 +372,8 @@ export default function Analytics() {
                             data={typeData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={50}
-                            outerRadius={80}
+                            innerRadius={35}
+                            outerRadius={60}
                             paddingAngle={8}
                             dataKey="value"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -402,11 +402,11 @@ export default function Analytics() {
                               boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                             }}
                           />
-                          <Legend />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No data available
                       </div>
                     )}
@@ -418,15 +418,15 @@ export default function Analytics() {
             {/* High Commission Distribution - Donut */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-chart-2/10 to-transparent rounded-bl-full" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" />
+                <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-gradient-to-bl from-chart-2/10 to-transparent rounded-bl-full" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     By High Commission
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-64">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-48 sm:h-64">
                     {commissionChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -434,11 +434,10 @@ export default function Analytics() {
                             data={commissionChartData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={45}
-                            outerRadius={75}
+                            innerRadius={30}
+                            outerRadius={55}
                             paddingAngle={5}
                             dataKey="value"
-                            label={({ name, value }) => `${name.slice(0, 10)}${name.length > 10 ? '...' : ''}: ${value}`}
                             onClick={(data) => setDrilldown({ type: 'commission', value: data.name })}
                             style={{ cursor: 'pointer' }}
                           >
@@ -459,10 +458,11 @@ export default function Analytics() {
                               borderRadius: '8px'
                             }}
                           />
+                          <Legend wrapperStyle={{ fontSize: '10px' }} />
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No commission data available
                       </div>
                     )}
@@ -472,23 +472,24 @@ export default function Analytics() {
             </motion.div>
 
             {/* Year-wise Distribution - Area Chart */}
-            <motion.div variants={cardVariants} className="md:col-span-2">
+            <motion.div variants={cardVariants} className="col-span-1 md:col-span-2">
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-chart-1/5 to-transparent rounded-bl-full" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-primary" />
+                <div className="absolute top-0 right-0 w-24 sm:w-48 h-24 sm:h-48 bg-gradient-to-bl from-chart-1/5 to-transparent rounded-bl-full" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Year-wise Distribution
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-72">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-48 sm:h-72">
                     {yearChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart 
                           data={yearChartData}
                           onClick={(data) => data?.activePayload?.[0] && setDrilldown({ type: 'year', value: data.activePayload[0].payload.name })}
                           style={{ cursor: 'pointer' }}
+                          margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
                         >
                           <defs>
                             <linearGradient id="yearGradient" x1="0" y1="0" x2="0" y2="1">
@@ -497,8 +498,8 @@ export default function Analytics() {
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
+                          <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} width={30} />
                           <Tooltip 
                             contentStyle={{ 
                               background: 'hsl(var(--popover))', 
@@ -510,13 +511,13 @@ export default function Analytics() {
                             type="monotone" 
                             dataKey="value" 
                             stroke="hsl(var(--primary))" 
-                            strokeWidth={3}
+                            strokeWidth={2}
                             fill="url(#yearGradient)"
                           />
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No data available
                       </div>
                     )}
@@ -526,23 +527,23 @@ export default function Analytics() {
             </motion.div>
 
             {/* Branch Distribution - Improved Horizontal Bar Chart */}
-            <motion.div variants={cardVariants} className="md:col-span-2">
+            <motion.div variants={cardVariants} className="col-span-1 md:col-span-2">
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-chart-4/10 to-transparent rounded-bl-full" />
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-primary" />
+                <div className="absolute top-0 right-0 w-20 sm:w-32 h-20 sm:h-32 bg-gradient-to-bl from-chart-4/10 to-transparent rounded-bl-full" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <BookOpen className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Distribution by Branch
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-80">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-56 sm:h-80">
                     {branchChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart 
                           data={branchChartData} 
                           layout="vertical"
-                          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                          margin={{ top: 5, right: 15, left: 0, bottom: 5 }}
                         >
                           <defs>
                             {branchChartData.map((_, index) => (
@@ -555,14 +556,14 @@ export default function Analytics() {
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} horizontal={false} />
                           <XAxis 
                             type="number" 
-                            tick={{ fontSize: 11 }} 
+                            tick={{ fontSize: 9 }} 
                             allowDecimals={false}
                           />
                           <YAxis 
                             dataKey="shortName" 
                             type="category" 
-                            width={70} 
-                            tick={{ fontSize: 11 }}
+                            width={50} 
+                            tick={{ fontSize: 9 }}
                             tickLine={false}
                           />
                           <Tooltip 
@@ -570,7 +571,8 @@ export default function Analytics() {
                               background: 'hsl(var(--popover))', 
                               border: '1px solid hsl(var(--border))',
                               borderRadius: '8px',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                              fontSize: '12px'
                             }}
                             formatter={(value: number, name: string, props: { payload: { name: string } }) => [
                               `${value} members`, 
@@ -580,7 +582,7 @@ export default function Analytics() {
                           />
                           <Bar 
                             dataKey="value" 
-                            radius={[0, 8, 8, 0]}
+                            radius={[0, 6, 6, 0]}
                             onClick={(data) => setDrilldown({ type: 'branch', value: data.name })}
                             style={{ cursor: 'pointer' }}
                           >
@@ -595,7 +597,7 @@ export default function Analytics() {
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No branch data available
                       </div>
                     )}
@@ -607,17 +609,20 @@ export default function Analytics() {
             {/* Scholarship Trends - Line Chart */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5 text-primary" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Scholarship Trends
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-64">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-44 sm:h-64">
                     {scholarshipChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={scholarshipChartData}>
+                        <LineChart 
+                          data={scholarshipChartData}
+                          margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
+                        >
                           <defs>
                             <linearGradient id="scholarshipLine" x1="0" y1="0" x2="1" y2="0">
                               <stop offset="0%" stopColor="hsl(var(--chart-3))" />
@@ -625,27 +630,28 @@ export default function Analytics() {
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                          <YAxis tick={{ fontSize: 11 }} />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} />
+                          <YAxis tick={{ fontSize: 9 }} width={25} />
                           <Tooltip 
                             contentStyle={{ 
                               background: 'hsl(var(--popover))', 
                               border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
+                              borderRadius: '8px',
+                              fontSize: '12px'
                             }}
                           />
                           <Line 
                             type="monotone" 
                             dataKey="value" 
                             stroke="url(#scholarshipLine)" 
-                            strokeWidth={3}
-                            dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 2, r: 5 }}
-                            activeDot={{ r: 8, fill: 'hsl(var(--chart-4))' }}
+                            strokeWidth={2}
+                            dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 1, r: 3 }}
+                            activeDot={{ r: 5, fill: 'hsl(var(--chart-4))' }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No scholarship data available
                       </div>
                     )}
@@ -657,38 +663,37 @@ export default function Analytics() {
             {/* College Distribution - List View */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-primary" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Students by College
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="space-y-1.5 sm:space-y-2 max-h-48 sm:max-h-64 overflow-y-auto pr-1 sm:pr-2">
                     {collegeChartData.length > 0 ? (
                       collegeChartData.map((college, index) => (
                         <div
                           key={college.fullName}
                           onClick={() => setDrilldown({ type: 'college', value: college.fullName })}
-                          className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors group"
+                          className="flex items-center justify-between p-2 sm:p-3 rounded-lg border bg-card hover:bg-accent/50 cursor-pointer transition-colors group"
                         >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                             <div 
-                              className="w-3 h-3 rounded-full shrink-0" 
+                              className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full shrink-0" 
                               style={{ backgroundColor: COLORS[index % COLORS.length] }}
                             />
-                            <span className="font-medium truncate" title={college.fullName}>
+                            <span className="text-xs sm:text-sm font-medium truncate" title={college.fullName}>
                               {college.fullName}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
-                            <span className="text-lg font-bold text-primary">{college.value}</span>
-                            <span className="text-xs text-muted-foreground">students</span>
+                          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                            <span className="text-sm sm:text-lg font-bold text-primary">{college.value}</span>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="h-32 flex items-center justify-center text-muted-foreground">
+                      <div className="h-24 sm:h-32 flex items-center justify-center text-muted-foreground text-sm">
                         No college data available
                       </div>
                     )}
@@ -700,17 +705,20 @@ export default function Analytics() {
             {/* Location Distribution */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-primary" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                    <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     By Location
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="h-64">
+                <CardContent className="p-3 sm:p-6 pt-0">
+                  <div className="h-44 sm:h-64">
                     {locationChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={locationChartData}>
+                        <BarChart 
+                          data={locationChartData}
+                          margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
+                        >
                           <defs>
                             <linearGradient id="locationGradient" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="hsl(var(--chart-5))" stopOpacity={0.9}/>
@@ -718,26 +726,27 @@ export default function Analytics() {
                             </linearGradient>
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                          <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                          <YAxis tick={{ fontSize: 11 }} />
+                          <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} angle={-45} textAnchor="end" height={50} />
+                          <YAxis tick={{ fontSize: 9 }} width={25} />
                           <Tooltip 
                             contentStyle={{ 
                               background: 'hsl(var(--popover))', 
                               border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px'
+                              borderRadius: '8px',
+                              fontSize: '12px'
                             }}
                           />
                           <Bar 
                             dataKey="value" 
                             fill="url(#locationGradient)" 
-                            radius={[6, 6, 0, 0]}
+                            radius={[4, 4, 0, 0]}
                             onClick={(data) => setDrilldown({ type: 'location', value: data.name })}
                             style={{ cursor: 'pointer' }}
                           />
                         </BarChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground">
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
                         No location data available
                       </div>
                     )}
