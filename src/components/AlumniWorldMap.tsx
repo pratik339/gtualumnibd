@@ -60,23 +60,55 @@ const countryPositions: Record<string, { x: number; y: number }> = {
   'Bahrain': { x: 590, y: 260 },
 };
 
-// Simplified and cleaner continent paths
+// Detailed continent paths for clear visualization
 const worldMapPaths = {
-  northAmerica: "M30,50 L60,35 L90,30 L130,28 L170,32 L200,30 L240,35 L280,45 L300,60 L310,90 L305,130 L290,170 L270,200 L250,230 L220,260 L190,280 L160,290 L130,285 L100,275 L80,255 L65,230 L55,200 L50,170 L45,140 L40,110 L35,80 Z",
-  centralAmerica: "M145,280 L165,275 L180,285 L190,310 L185,340 L175,355 L160,350 L150,335 L145,310 Z",
-  southAmerica: "M195,340 L230,325 L270,330 L300,355 L320,400 L330,450 L320,500 L295,530 L260,540 L225,535 L195,510 L175,470 L170,430 L175,390 L185,360 Z",
-  europe: "M420,85 L450,75 L480,78 L510,80 L540,85 L565,95 L580,115 L575,145 L560,175 L535,195 L505,205 L475,210 L445,205 L420,190 L405,165 L400,135 L405,105 Z",
-  uk: "M432,110 L448,102 L462,108 L468,125 L465,145 L455,160 L440,158 L432,145 L428,128 Z",
-  africa: "M440,200 L480,190 L520,195 L560,210 L590,245 L610,300 L620,360 L605,420 L575,465 L530,480 L485,475 L450,450 L425,400 L420,350 L430,290 L425,240 Z",
-  middleEast: "M545,190 L580,180 L620,195 L650,230 L660,275 L645,305 L610,315 L575,300 L555,265 L545,230 Z",
-  russia: "M560,55 L620,40 L700,35 L780,45 L850,60 L910,85 L940,115 L935,150 L910,175 L860,185 L800,180 L740,170 L680,155 L620,140 L580,120 L565,90 Z",
-  asia: "M610,140 L660,125 L720,135 L780,150 L840,175 L890,210 L910,260 L900,310 L870,350 L820,365 L760,355 L700,335 L650,300 L620,255 L600,200 Z",
-  india: "M640,245 L680,230 L720,250 L740,295 L735,345 L710,380 L670,390 L640,370 L620,330 L625,285 Z",
-  southeastAsia: "M730,300 L770,290 L810,310 L830,355 L820,400 L785,420 L745,405 L725,365 L720,330 Z",
-  japan: "M850,175 L875,165 L895,180 L905,210 L900,250 L880,270 L858,265 L845,235 L845,200 Z",
-  australia: "M770,370 L830,355 L890,375 L930,410 L945,460 L930,510 L880,530 L820,525 L770,500 L745,455 L750,410 Z",
-  newZealand: "M915,455 L940,450 L955,470 L950,500 L935,515 L915,510 L908,485 Z",
-  indonesia: "M755,355 L790,345 L830,360 L860,385 L855,415 L820,430 L780,425 L755,400 L750,375 Z",
+  // North America - larger and more detailed
+  northAmerica: "M50,80 C60,60 100,40 150,35 C200,30 250,35 280,50 C310,65 320,100 315,140 C310,180 290,210 260,240 C230,270 200,290 170,300 C140,295 110,280 90,260 C70,240 55,210 50,180 C45,150 45,110 50,80 Z",
+  
+  // Greenland
+  greenland: "M320,50 C340,45 370,50 385,70 C400,90 395,120 380,140 C365,155 340,160 320,150 C300,140 290,115 295,90 C300,70 310,55 320,50 Z",
+  
+  // Central America  
+  centralAmerica: "M150,295 C165,290 180,295 190,315 C200,335 195,360 180,375 C165,385 145,380 140,360 C135,340 140,310 150,295 Z",
+  
+  // South America - larger
+  southAmerica: "M200,370 C230,355 270,360 300,385 C330,410 345,455 340,500 C335,545 310,580 270,590 C230,595 190,575 170,540 C150,505 155,460 170,420 C185,385 195,375 200,370 Z",
+  
+  // Europe - more visible
+  europe: "M420,100 C450,90 490,95 520,105 C550,115 575,135 580,165 C585,195 570,220 545,235 C520,250 485,255 455,245 C425,235 405,210 400,180 C395,150 400,120 420,100 Z",
+  
+  // UK & Ireland
+  uk: "M430,120 C445,110 465,115 475,135 C485,155 480,180 465,195 C450,205 430,200 420,185 C410,170 415,145 430,120 Z",
+  
+  // Africa - prominent
+  africa: "M445,230 C480,215 530,220 565,245 C600,270 625,320 635,375 C645,430 630,485 595,520 C560,555 510,565 465,545 C420,525 395,480 390,425 C385,370 400,310 420,270 C435,245 445,230 445,230 Z",
+  
+  // Middle East
+  middleEast: "M555,210 C590,200 625,215 650,245 C675,275 680,315 665,345 C650,375 615,390 580,380 C545,370 520,340 520,300 C520,260 535,225 555,210 Z",
+  
+  // Russia - spans across
+  russia: "M560,70 C620,55 700,50 780,60 C860,70 920,95 950,130 C980,165 970,200 930,220 C890,240 820,245 750,235 C680,225 620,200 580,165 C540,130 530,95 560,70 Z",
+  
+  // Central/East Asia
+  asia: "M650,180 C700,165 760,175 810,200 C860,225 895,270 900,320 C905,370 880,410 835,430 C790,450 730,445 680,420 C630,395 600,350 600,300 C600,250 615,205 650,180 Z",
+  
+  // India subcontinent
+  india: "M630,260 C665,245 705,255 730,285 C755,315 765,360 755,400 C745,440 715,465 680,470 C645,475 615,455 600,420 C585,385 590,340 610,300 C625,270 630,260 630,260 Z",
+  
+  // Southeast Asia
+  southeastAsia: "M735,320 C770,310 810,325 835,355 C860,385 865,425 845,455 C825,485 785,495 750,480 C715,465 700,430 705,395 C710,360 720,335 735,320 Z",
+  
+  // Japan
+  japan: "M855,190 C875,180 900,190 915,215 C930,240 930,275 915,300 C900,320 875,325 855,310 C835,295 830,260 840,235 C850,210 855,195 855,190 Z",
+  
+  // Australia - larger
+  australia: "M765,395 C815,375 875,385 920,415 C965,445 985,495 975,545 C965,595 920,625 865,630 C810,635 755,610 725,565 C695,520 700,465 730,425 C755,400 765,395 765,395 Z",
+  
+  // New Zealand
+  newZealand: "M920,480 C940,475 960,490 965,515 C970,540 960,565 940,575 C920,585 900,575 895,555 C890,535 900,505 920,480 Z",
+  
+  // Indonesia archipelago
+  indonesia: "M750,375 C785,365 830,375 865,400 C900,425 910,460 895,485 C880,510 840,520 800,510 C760,500 735,475 735,445 C735,415 745,390 750,375 Z",
 };
 
 const AlumniWorldMap = () => {
@@ -244,16 +276,22 @@ const AlumniWorldMap = () => {
               <stop offset="100%" stopColor="hsl(220, 50%, 6%)" />
             </radialGradient>
             
-            {/* Land gradients - vibrant and modern */}
+            {/* Land gradients - brighter and more visible */}
             <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(160, 35%, 35%)" />
-              <stop offset="50%" stopColor="hsl(150, 30%, 30%)" />
-              <stop offset="100%" stopColor="hsl(140, 25%, 25%)" />
+              <stop offset="0%" stopColor="hsl(145, 40%, 45%)" />
+              <stop offset="50%" stopColor="hsl(140, 35%, 38%)" />
+              <stop offset="100%" stopColor="hsl(135, 30%, 32%)" />
             </linearGradient>
             
             <linearGradient id="landGradientHover" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(160, 40%, 42%)" />
-              <stop offset="100%" stopColor="hsl(150, 35%, 35%)" />
+              <stop offset="0%" stopColor="hsl(145, 45%, 52%)" />
+              <stop offset="100%" stopColor="hsl(140, 40%, 42%)" />
+            </linearGradient>
+            
+            {/* Land stroke/border */}
+            <linearGradient id="landStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(145, 35%, 55%)" />
+              <stop offset="100%" stopColor="hsl(140, 30%, 45%)" />
             </linearGradient>
 
             {/* Marker gradients - beautiful color scheme */}
@@ -349,12 +387,13 @@ const AlumniWorldMap = () => {
                 key={name}
                 d={path}
                 fill="url(#landGradient)"
-                stroke="hsl(160, 30%, 50%)"
-                strokeWidth="1"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="hover:fill-[url(#landGradientHover)] transition-all duration-300"
+                stroke="url(#landStroke)"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                style={{ transformOrigin: 'center' }}
               />
             ))}
           </g>
