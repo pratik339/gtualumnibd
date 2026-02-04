@@ -100,10 +100,10 @@ export const Header = () => {
               <img alt="GTU Logo" className="h-full w-full object-contain p-0.5" src={gtuLogo} width="56" height="56" loading="eager" />
             </motion.div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg sm:text-xl text-[hsl(220,50%,15%)] dark:text-foreground uppercase tracking-wide">
+              <span className="font-bold text-sm sm:text-lg md:text-xl text-[hsl(220,50%,15%)] dark:text-foreground uppercase tracking-wide leading-tight">
                 Gujarat Technological University
               </span>
-              <span className="text-xs sm:text-sm text-primary font-semibold">Alumni Database for Bangladeshi students</span>
+              <span className="text-[10px] sm:text-xs md:text-sm text-primary font-semibold">Alumni Database for Bangladeshi students</span>
             </div>
           </Link>
 
