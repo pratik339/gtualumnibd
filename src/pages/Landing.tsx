@@ -9,6 +9,7 @@ import { PageTransition } from '@/components/ui/page-transition';
 import gtuCampus from '@/assets/gtu-campus-optimized.webp';
 import { useEffect, useState, lazy, Suspense, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { DirectoryPreview } from '@/components/landing/DirectoryPreview';
 
 // Lazy load heavy map component
 const AlumniWorldMap = lazy(() => import('@/components/AlumniWorldMap'));
@@ -609,6 +610,9 @@ export default function Landing() {
           </motion.div>
         </div>
       </section>
+
+      {/* Directory Preview Section */}
+      <DirectoryPreview />
 
       {/* Alumni World Map Section */}
       <section className="py-20 relative overflow-hidden" ref={mapSectionRef}>
