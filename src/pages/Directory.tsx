@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Search, MapPin, Briefcase, Mail, Linkedin, Shield, X } from 'lucide-react';
+import { Search, MapPin, Briefcase, Mail, Linkedin, Shield, X, Building2, Calendar, BookOpen, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PageTransition, staggerContainer, fadeInUp } from '@/components/ui/page-transition';
@@ -219,28 +219,73 @@ export default function Directory() {
                                   className="mt-1"
                                 />
                               )}
-                              {profile.branches?.name && (
-                                <p className="text-sm text-muted-foreground mt-2">{profile.branches.name}</p>
-                              )}
-                              {profile.user_type === 'alumni' && profile.passout_year && (
-                                <p className="text-sm text-muted-foreground">Class of {profile.passout_year}</p>
-                              )}
                             </div>
                           </div>
                           
-                          {profile.user_type === 'alumni' && (profile.job_title || profile.company) && (
-                            <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                              <Briefcase className="h-4 w-4" />
-                              <span>{[profile.job_title, profile.company].filter(Boolean).join(' at ')}</span>
+                          {/* Details section - same layout for all user types */}
+                          <div className="mt-4 space-y-2">
+                            {/* Branch info */}
+                            {profile.branches?.name && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <BookOpen className="h-4 w-4 shrink-0 text-primary/60" />
+                                <span className="truncate">{profile.branches.name}</span>
+                                {profile.branches.code && (
+                                  <Badge variant="outline" className="text-xs px-1.5 py-0 h-5">
+                                    {profile.branches.code}
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* College info */}
+                            {profile.colleges?.name && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Building2 className="h-4 w-4 shrink-0 text-primary/60" />
+                                <span className="truncate">{profile.colleges.name}</span>
+                              </div>
+                            )}
+                            
+                            {/* Job/Role info - for alumni */}
+                            {profile.user_type === 'alumni' && (profile.job_title || profile.company) && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Briefcase className="h-4 w-4 shrink-0 text-primary/60" />
+                                <span className="truncate">{[profile.job_title, profile.company].filter(Boolean).join(' at ')}</span>
+                              </div>
+                            )}
+                            
+                            {/* Year info */}
+                            {(profile.passout_year || profile.expected_passout_year || profile.current_semester) && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Calendar className="h-4 w-4 shrink-0 text-primary/60" />
+                                <span>
+                                  {profile.user_type === 'alumni' 
+                                    ? `Class of ${profile.passout_year}`
+                                    : profile.current_semester 
+                                      ? `Semester ${profile.current_semester}${profile.expected_passout_year ? ` • Expected ${profile.expected_passout_year}` : ''}`
+                                      : profile.expected_passout_year 
+                                        ? `Expected ${profile.expected_passout_year}`
+                                        : ''
+                                  }
+                                </span>
+                              </div>
+                            )}
+                            
+                            {/* Location */}
+                            {(profile.location_city || profile.location_country) && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <MapPin className="h-4 w-4 shrink-0 text-primary/60" />
+                                <span className="truncate">{[profile.location_city, profile.location_country].filter(Boolean).join(', ')}</span>
+                              </div>
+                            )}
+                            
+                            {/* Achievements preview for students */}
+                            {(profile.user_type === 'scholar' || profile.user_type === 'student') && profile.achievements && (
+                              <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <Award className="h-4 w-4 shrink-0 text-primary mt-0.5" />
+                                <span className="line-clamp-1">{profile.achievements}</span>
+                              </div>
+                            )}
                             </div>
-                          )}
-                          
-                          {profile.location_city && (
-                            <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span>{[profile.location_city, profile.location_country].filter(Boolean).join(', ')}</span>
-                            </div>
-                          )}
 
                           <div className="flex gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
                             {profile.email_visible && profile.email && (
