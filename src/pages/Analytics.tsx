@@ -704,7 +704,7 @@ export default function Analytics() {
             </motion.div>
 
             {/* Location Distribution - Gujarat Map + Stats */}
-            <motion.div variants={cardVariants}>
+            <motion.div variants={cardVariants} className="col-span-1 md:col-span-2">
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-24 sm:w-40 h-24 sm:h-40 bg-gradient-to-br from-chart-3/10 to-transparent rounded-br-full" />
                 <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4 relative">
