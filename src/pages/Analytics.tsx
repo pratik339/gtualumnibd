@@ -7,10 +7,11 @@ import {
   PieChart, Pie, BarChart, Bar, LineChart, Line, XAxis, YAxis, 
   CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend, AreaChart, Area 
 } from 'recharts';
-import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Building2 } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Building2, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { AnalyticsDetailModal } from '@/components/analytics/AnalyticsDetailModal';
+import { GujaratMap } from '@/components/analytics/GujaratMap';
 
 // Animated number counter
 const AnimatedCounter = ({ value }: { value: number }) => {
@@ -702,54 +703,79 @@ export default function Analytics() {
               </Card>
             </motion.div>
 
-            {/* Location Distribution */}
+            {/* Location Distribution - Gujarat Map + Stats */}
             <motion.div variants={cardVariants}>
-              <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
-                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
+              <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden relative">
+                <div className="absolute top-0 left-0 w-24 sm:w-40 h-24 sm:h-40 bg-gradient-to-br from-chart-3/10 to-transparent rounded-br-full" />
+                <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4 relative">
                   <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                     <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    By Location
+                    Students Across Gujarat
                   </CardTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    College locations across the state
+                  </p>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 pt-0">
-                  <div className="h-44 sm:h-64">
-                    {locationChartData.length > 0 ? (
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart 
-                          data={locationChartData}
-                          margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
-                        >
-                          <defs>
-                            <linearGradient id="locationGradient" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="hsl(var(--chart-5))" stopOpacity={0.9}/>
-                              <stop offset="100%" stopColor="hsl(var(--chart-5))" stopOpacity={0.4}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                          <XAxis dataKey="name" tick={{ fontSize: 9 }} interval={0} angle={-45} textAnchor="end" height={50} />
-                          <YAxis tick={{ fontSize: 9 }} width={25} />
-                          <Tooltip 
-                            contentStyle={{ 
-                              background: 'hsl(var(--popover))', 
-                              border: '1px solid hsl(var(--border))',
-                              borderRadius: '8px',
-                              fontSize: '12px'
-                            }}
-                          />
-                          <Bar 
-                            dataKey="value" 
-                            fill="url(#locationGradient)" 
-                            radius={[4, 4, 0, 0]}
-                            onClick={(data) => setDrilldown({ type: 'location', value: data.name })}
-                            style={{ cursor: 'pointer' }}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                        No location data available
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    {/* Gujarat Map */}
+                    <div className="md:col-span-3 h-[280px] sm:h-[360px]">
+                      {locationChartData.length > 0 ? (
+                        <GujaratMap
+                          cityData={locationChartData}
+                          onCityClick={(city) => setDrilldown({ type: 'location', value: city })}
+                        />
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+                          No location data available
+                        </div>
+                      )}
+                    </div>
+
+                    {/* City Stats Sidebar */}
+                    <div className="md:col-span-2 flex flex-col gap-2">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+                        City-wise Distribution
+                      </h4>
+                      <div className="space-y-1.5 max-h-[240px] sm:max-h-[310px] overflow-y-auto pr-1">
+                        {locationChartData.map((city, index) => {
+                          const percentage = profiles.length > 0 
+                            ? Math.round((city.value / profiles.filter(p => p.colleges?.city).length) * 100)
+                            : 0;
+                          return (
+                            <motion.div
+                              key={city.name}
+                              initial={{ opacity: 0, x: 20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.3 + index * 0.1 }}
+                              onClick={() => setDrilldown({ type: 'location', value: city.name })}
+                              className="group flex items-center gap-3 p-2.5 rounded-lg border border-border/50 bg-card hover:bg-accent/50 cursor-pointer transition-all hover:shadow-sm hover:-translate-y-0.5"
+                            >
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
+                                <MapPin className="h-3.5 w-3.5 text-primary" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{city.name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                                    <motion.div
+                                      className="h-full rounded-full bg-gradient-to-r from-primary/70 to-primary"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${percentage}%` }}
+                                      transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                                    />
+                                  </div>
+                                  <span className="text-[10px] text-muted-foreground shrink-0">{percentage}%</span>
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <span className="text-lg font-bold text-primary">{city.value}</span>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
