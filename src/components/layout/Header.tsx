@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { Moon, Sun, Menu, LogOut, User, LayoutDashboard, Home, MessageCircle, Users } from 'lucide-react';
+import { Moon, Sun, Menu, LogOut, User, LayoutDashboard, Home, MessageCircle, Users, Newspaper } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -57,6 +57,10 @@ export const Header = () => {
       <Link to="/chat" className={`flex items-center gap-1 transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
         <MessageCircle className="h-4 w-4" />
         Messages
+      </Link>
+      <Link to="/community" className={`flex items-center gap-1 transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
+        <Newspaper className="h-4 w-4" />
+        Community
       </Link>
       <Link to="/analytics" className={`transition-all font-medium ${mobile ? 'text-foreground hover:text-primary py-2' : 'text-white/90 hover:text-white hover:bg-white/15 px-3 py-1.5 rounded'}`}>
         Analytics
