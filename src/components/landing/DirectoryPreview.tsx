@@ -211,26 +211,6 @@ export function DirectoryPreview() {
                         <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
                           {profile.full_name}
                         </h3>
-                        <Badge 
-                          variant="outline" 
-                          className={`mt-1 text-xs ${
-                            isAlumni 
-                              ? 'bg-primary/10 text-primary border-primary/30' 
-                              : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'
-                          }`}
-                        >
-                          {isAlumni ? (
-                            <>
-                              <GraduationCap className="w-3 h-3 mr-1" />
-                              {profile.passout_year ? `Alumni '${String(profile.passout_year).slice(-2)}` : 'Alumni'}
-                            </>
-                          ) : (
-                            <>
-                              <BookOpen className="w-3 h-3 mr-1" />
-                              {profile.current_semester ? `Sem ${profile.current_semester}` : 'Student'}
-                            </>
-                          )}
-                        </Badge>
                       </div>
                     </div>
                     
