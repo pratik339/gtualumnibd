@@ -10,13 +10,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2, Eye, ShieldAlert } from 'lucide-react';
+import { Users, Clock, CheckCircle, XCircle, AlertTriangle, Sparkles, Download, Trash2, Eye, ShieldAlert, Newspaper } from 'lucide-react';
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { ProfileWithRelations } from '@/hooks/useProfiles';
 import * as XLSX from 'xlsx';
+import { PostModeration } from '@/components/admin/PostModeration';
 
 export default function Admin() {
   const { profiles: allProfiles, refetch } = useProfiles();
@@ -289,6 +290,10 @@ export default function Admin() {
                   Pending ({pendingCount})
                 </TabsTrigger>
                 <TabsTrigger value="all">All Users</TabsTrigger>
+                <TabsTrigger value="posts" className="gap-2">
+                  <Newspaper className="h-4 w-4" />
+                  Posts
+                </TabsTrigger>
               </TabsList>
               
               {/* Export Button */}
@@ -468,6 +473,10 @@ export default function Admin() {
                   </Card>
                 ))}
               </div>
+            </TabsContent>
+
+            <TabsContent value="posts" className="mt-6">
+              <PostModeration />
             </TabsContent>
           </Tabs>
 
