@@ -14,6 +14,11 @@ interface PostCardProps {
   showStatus?: boolean;
 }
 
+function isVideoUrl(url: string): boolean {
+  const lower = url.toLowerCase();
+  return lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.mov');
+}
+
 export function PostCard({ post, onDelete, showStatus }: PostCardProps) {
   const { user, isAdmin } = useAuth();
   const isOwner = user?.id === post.user_id;
@@ -67,6 +72,17 @@ export function PostCard({ post, onDelete, showStatus }: PostCardProps) {
         <CardContent className="pt-0">
           <h3 className="font-semibold text-lg mb-2">{post.title}</h3>
           <p className="text-muted-foreground whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
+
+          {post.image_url && (
+            <div className="mt-3 rounded-lg overflow-hidden border border-border">
+              {isVideoUrl(post.image_url) ? (
+                <video src={post.image_url} controls className="w-full max-h-96 object-contain bg-muted" />
+              ) : (
+                <img src={post.image_url} alt="Post media" className="w-full max-h-96 object-contain bg-muted" loading="lazy" />
+              )}
+            </div>
+          )}
+
           {post.status === 'rejected' && post.rejection_reason && (
             <div className="mt-3 p-3 rounded-md bg-destructive/10 border border-destructive/20">
               <p className="text-xs font-medium text-destructive">Rejection reason: {post.rejection_reason}</p>
