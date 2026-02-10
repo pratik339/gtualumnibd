@@ -21,6 +21,7 @@ export default function Directory() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [semesterFilter, setSemesterFilter] = useState<string>('all');
   const [adminUserIds, setAdminUserIds] = useState<Set<string>>(new Set());
 
   // Debounce search for performance
@@ -85,10 +86,14 @@ export default function Directory() {
       const matchesType = typeFilter === 'all' || 
         profile.user_type === typeFilter || 
         (typeFilter === 'student' && (profile.user_type as string) === 'scholar');
+
+      const matchesSemester = semesterFilter === 'all' ||
+        (semesterFilter === 'alumni' && profile.user_type === 'alumni') ||
+        (profile.current_semester?.toString() === semesterFilter);
       
-      return matchesSearch && matchesType;
+      return matchesSearch && matchesType && matchesSemester;
     });
-  }, [profilesWithSearchText, debouncedSearch, typeFilter]);
+  }, [profilesWithSearchText, debouncedSearch, typeFilter, semesterFilter]);
 
   const clearSearch = useCallback(() => setSearch(''), []);
 
@@ -131,7 +136,7 @@ export default function Directory() {
                   </Button>
                 )}
               </div>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter} onValueChange={(val) => { setTypeFilter(val); if (val === 'alumni') setSemesterFilter('all'); }}>
                 <SelectTrigger className="w-full sm:w-48">
                   <SelectValue placeholder="Filter by type" />
                 </SelectTrigger>
@@ -139,6 +144,23 @@ export default function Directory() {
                   <SelectItem value="all">All Members</SelectItem>
                   <SelectItem value="alumni">Alumni</SelectItem>
                   <SelectItem value="student">Students</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={semesterFilter} onValueChange={setSemesterFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <SelectValue placeholder="Filter by semester" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  <SelectItem value="all">All Semesters</SelectItem>
+                  <SelectItem value="1">1st Semester</SelectItem>
+                  <SelectItem value="2">2nd Semester</SelectItem>
+                  <SelectItem value="3">3rd Semester</SelectItem>
+                  <SelectItem value="4">4th Semester</SelectItem>
+                  <SelectItem value="5">5th Semester</SelectItem>
+                  <SelectItem value="6">6th Semester</SelectItem>
+                  <SelectItem value="7">7th Semester</SelectItem>
+                  <SelectItem value="8">8th Semester</SelectItem>
+                  <SelectItem value="alumni">Alumni (Graduated)</SelectItem>
                 </SelectContent>
               </Select>
             </motion.div>
