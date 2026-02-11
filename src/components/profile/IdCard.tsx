@@ -3,12 +3,37 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Download, GraduationCap, Building, MapPin, Briefcase, Calendar } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import type { ProfileWithRelations } from '@/hooks/useProfiles';
 import gtuLogo from '@/assets/gtu-logo.png';
 
 interface IdCardProps {
   profile: ProfileWithRelations;
+}
+
+function getSessionYears(profile: ProfileWithRelations): string | null {
+  const isAlumni = profile.user_type === 'alumni';
+
+  if (isAlumni && profile.passout_year) {
+    const start = profile.passout_year - 4;
+    return `${start}-${profile.passout_year}`;
+  }
+
+  if (!isAlumni) {
+    if ((profile as any).joining_year && profile.expected_passout_year) {
+      return `${(profile as any).joining_year}-${profile.expected_passout_year}`;
+    }
+    if (profile.expected_passout_year) {
+      const start = profile.expected_passout_year - 4;
+      return `${start}-${profile.expected_passout_year}`;
+    }
+    if (profile.scholarship_year) {
+      return `${profile.scholarship_year}-${profile.scholarship_year + 4}`;
+    }
+  }
+
+  return null;
 }
 
 export function IdCard({ profile }: IdCardProps) {
@@ -29,6 +54,10 @@ export function IdCard({ profile }: IdCardProps) {
 
   const isAlumni = profile.user_type === 'alumni';
   const isScholar = profile.user_type === 'scholar';
+  const sessionYears = getSessionYears(profile);
+
+  // Build profile URL for QR code
+  const profileUrl = `https://gtualumnibd.lovable.app/profile/${profile.id}`;
 
   return (
     <div className="space-y-4">
@@ -61,7 +90,7 @@ export function IdCard({ profile }: IdCardProps) {
               className="h-12 w-12 rounded-full bg-white p-1 object-contain"
               crossOrigin="anonymous"
             />
-            <div className="text-white">
+            <div className="text-white flex-1">
               <p className="text-[11px] font-medium opacity-80 uppercase tracking-wider">
                 Gujarat Technological University
               </p>
@@ -69,6 +98,15 @@ export function IdCard({ profile }: IdCardProps) {
                 {isAlumni ? 'Alumni Card' : isScholar ? 'Scholar Card' : 'Student Card'}
               </p>
             </div>
+            {sessionYears && (
+              <div
+                className="text-white text-center px-2 py-1 rounded-md"
+                style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)' }}
+              >
+                <p className="text-[9px] uppercase tracking-wider opacity-70 leading-none mb-0.5">Session</p>
+                <p className="text-sm font-bold leading-none">{sessionYears}</p>
+              </div>
+            )}
           </div>
 
           {/* Divider */}
@@ -121,6 +159,21 @@ export function IdCard({ profile }: IdCardProps) {
                   {profile.colleges.name}
                 </p>
               )}
+            </div>
+
+            {/* QR Code */}
+            <div className="shrink-0 flex flex-col items-center justify-center">
+              <div className="bg-white rounded-lg p-1.5">
+                <QRCodeSVG
+                  value={profileUrl}
+                  size={72}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+              <p className="text-[8px] text-white/60 mt-1 text-center leading-tight">
+                Scan for<br />full profile
+              </p>
             </div>
           </div>
 
