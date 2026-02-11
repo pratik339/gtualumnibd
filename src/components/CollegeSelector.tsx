@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useColleges } from '@/hooks/useColleges';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Plus } from 'lucide-react';
 
 interface CollegeSelectorProps {
@@ -18,6 +19,7 @@ interface CollegeSelectorProps {
 export function CollegeSelector({ value, onChange, label = "Affiliated College", required = false }: CollegeSelectorProps) {
   const { colleges, refetch } = useColleges();
   const { toast } = useToast();
+  const { isAdmin } = useAuth();
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [newCollegeName, setNewCollegeName] = useState('');
   const [newCollegeCity, setNewCollegeCity] = useState('');
@@ -99,12 +101,14 @@ export function CollegeSelector({ value, onChange, label = "Affiliated College",
                 {college.name} {college.city && `(${college.city})`}
               </SelectItem>
             ))}
-            <SelectItem value="other" className="text-primary font-medium">
-              <span className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Other (Add New College)
-              </span>
-            </SelectItem>
+            {isAdmin && (
+              <SelectItem value="other" className="text-primary font-medium">
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Other (Add New College)
+                </span>
+              </SelectItem>
+            )}
           </SelectContent>
         </Select>
       ) : (
