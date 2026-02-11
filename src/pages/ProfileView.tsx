@@ -17,6 +17,7 @@ import { motion } from 'framer-motion';
 import { PageTransition } from '@/components/ui/page-transition';
 import { sanitizeExternalUrl, sanitizeWhatsAppNumber } from '@/lib/validation';
 import { ConnectionButton } from '@/components/connections/ConnectionButton';
+import { IdCard } from '@/components/profile/IdCard';
 import type { ProfileWithRelations } from '@/hooks/useProfiles';
 
 export default function ProfileView() {
@@ -353,6 +354,16 @@ export default function ProfileView() {
                         </div>
                       </div>
                     )}
+                  </motion.div>
+
+                  {/* ID Card Section */}
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.55 }}
+                  >
+                    <Separator className="my-6" />
+                    <IdCard profile={profile} />
                   </motion.div>
 
                   {/* Experience & Achievements & Projects */}
