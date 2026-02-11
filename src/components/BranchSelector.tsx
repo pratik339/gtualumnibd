@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useBranches } from '@/hooks/useBranches';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, Plus } from 'lucide-react';
 
 interface BranchSelectorProps {
@@ -18,6 +19,7 @@ interface BranchSelectorProps {
 export function BranchSelector({ value, onChange, label = "Branch / Discipline", required = false }: BranchSelectorProps) {
   const { branches, refetch } = useBranches();
   const { toast } = useToast();
+  const { isAdmin } = useAuth();
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [newBranchName, setNewBranchName] = useState('');
   const [newBranchCode, setNewBranchCode] = useState('');
@@ -99,12 +101,14 @@ export function BranchSelector({ value, onChange, label = "Branch / Discipline",
                 {branch.name} {branch.code && `(${branch.code})`}
               </SelectItem>
             ))}
-            <SelectItem value="other" className="text-primary font-medium">
-              <span className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Other (Add New Branch)
-              </span>
-            </SelectItem>
+            {isAdmin && (
+              <SelectItem value="other" className="text-primary font-medium">
+                <span className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Other (Add New Branch)
+                </span>
+              </SelectItem>
+            )}
           </SelectContent>
         </Select>
       ) : (
