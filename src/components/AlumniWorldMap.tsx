@@ -1,114 +1,156 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { useAlumniLocations } from '@/hooks/useAlumniLocations';
-import { Globe, Users, MapPin, ZoomIn, ZoomOut, RotateCcw, Sparkles } from 'lucide-react';
+import { Globe, Users, MapPin, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
-// Country coordinates mapped to SVG viewBox (Mercator-like projection)
+// Accurate Mercator-projected country positions (x: 0-1000, y: 0-550)
 const countryPositions: Record<string, { x: number; y: number }> = {
-  'India': { x: 680, y: 280 },
-  'United States': { x: 180, y: 220 },
-  'USA': { x: 180, y: 220 },
-  'United Kingdom': { x: 450, y: 170 },
-  'UK': { x: 450, y: 170 },
-  'Canada': { x: 180, y: 150 },
-  'Australia': { x: 820, y: 420 },
-  'Germany': { x: 490, y: 180 },
-  'France': { x: 465, y: 195 },
-  'Singapore': { x: 755, y: 340 },
-  'UAE': { x: 600, y: 270 },
-  'United Arab Emirates': { x: 600, y: 270 },
-  'Dubai': { x: 600, y: 270 },
-  'Qatar': { x: 590, y: 265 },
-  'Saudi Arabia': { x: 575, y: 265 },
-  'Japan': { x: 860, y: 215 },
-  'South Korea': { x: 835, y: 215 },
-  'China': { x: 770, y: 230 },
-  'Netherlands': { x: 475, y: 175 },
-  'Switzerland': { x: 480, y: 190 },
-  'Ireland': { x: 435, y: 165 },
+  'India': { x: 670, y: 285 },
+  'United States': { x: 175, y: 210 },
+  'USA': { x: 175, y: 210 },
+  'United Kingdom': { x: 448, y: 155 },
+  'UK': { x: 448, y: 155 },
+  'Canada': { x: 185, y: 140 },
+  'Australia': { x: 825, y: 425 },
+  'Germany': { x: 488, y: 168 },
+  'France': { x: 465, y: 185 },
+  'Singapore': { x: 752, y: 340 },
+  'UAE': { x: 600, y: 275 },
+  'United Arab Emirates': { x: 600, y: 275 },
+  'Dubai': { x: 600, y: 275 },
+  'Qatar': { x: 590, y: 270 },
+  'Saudi Arabia': { x: 572, y: 270 },
+  'Japan': { x: 855, y: 205 },
+  'South Korea': { x: 830, y: 210 },
+  'China': { x: 770, y: 225 },
+  'Netherlands': { x: 472, y: 165 },
+  'Switzerland': { x: 478, y: 182 },
+  'Ireland': { x: 435, y: 155 },
   'New Zealand': { x: 910, y: 460 },
   'South Africa': { x: 530, y: 430 },
-  'Brazil': { x: 300, y: 380 },
-  'Mexico': { x: 160, y: 270 },
-  'Spain': { x: 450, y: 210 },
-  'Italy': { x: 495, y: 205 },
-  'Sweden': { x: 505, y: 135 },
-  'Norway': { x: 490, y: 125 },
-  'Denmark': { x: 485, y: 160 },
-  'Finland': { x: 530, y: 125 },
-  'Poland': { x: 515, y: 175 },
-  'Belgium': { x: 470, y: 180 },
-  'Austria': { x: 500, y: 190 },
-  'Malaysia': { x: 755, y: 335 },
-  'Thailand': { x: 745, y: 300 },
-  'Indonesia': { x: 780, y: 360 },
+  'Brazil': { x: 295, y: 380 },
+  'Mexico': { x: 155, y: 275 },
+  'Spain': { x: 452, y: 200 },
+  'Italy': { x: 492, y: 195 },
+  'Sweden': { x: 500, y: 125 },
+  'Norway': { x: 485, y: 118 },
+  'Denmark': { x: 484, y: 153 },
+  'Finland': { x: 525, y: 118 },
+  'Poland': { x: 510, y: 165 },
+  'Belgium': { x: 470, y: 170 },
+  'Austria': { x: 498, y: 180 },
+  'Malaysia': { x: 752, y: 335 },
+  'Thailand': { x: 740, y: 300 },
+  'Indonesia': { x: 780, y: 355 },
   'Philippines': { x: 810, y: 300 },
-  'Vietnam': { x: 760, y: 295 },
-  'Russia': { x: 650, y: 140 },
-  'Kenya': { x: 560, y: 350 },
-  'Nigeria': { x: 485, y: 320 },
+  'Vietnam': { x: 758, y: 295 },
+  'Russia': { x: 650, y: 130 },
+  'Kenya': { x: 560, y: 345 },
+  'Nigeria': { x: 480, y: 320 },
   'Egypt': { x: 545, y: 255 },
-  'Israel': { x: 555, y: 245 },
-  'Turkey': { x: 545, y: 215 },
-  'Pakistan': { x: 645, y: 260 },
-  'Bangladesh': { x: 710, y: 275 },
-  'Sri Lanka': { x: 685, y: 325 },
-  'Nepal': { x: 690, y: 260 },
+  'Israel': { x: 555, y: 240 },
+  'Turkey': { x: 545, y: 210 },
+  'Pakistan': { x: 640, y: 260 },
+  'Bangladesh': { x: 705, y: 275 },
+  'Sri Lanka': { x: 682, y: 325 },
+  'Nepal': { x: 688, y: 258 },
   'Oman': { x: 610, y: 280 },
   'Kuwait': { x: 585, y: 255 },
-  'Bahrain': { x: 590, y: 260 },
+  'Bahrain': { x: 590, y: 262 },
+  'Myanmar': { x: 730, y: 290 },
+  'Afghanistan': { x: 635, y: 240 },
+  'Iran': { x: 600, y: 240 },
+  'Iraq': { x: 572, y: 235 },
+  'Jordan': { x: 555, y: 245 },
+  'Lebanon': { x: 552, y: 235 },
+  'Bhutan': { x: 700, y: 260 },
+  'Maldives': { x: 665, y: 340 },
 };
 
-// Detailed continent paths for clear visualization
-const worldMapPaths = {
-  // North America - larger and more detailed
-  northAmerica: "M50,80 C60,60 100,40 150,35 C200,30 250,35 280,50 C310,65 320,100 315,140 C310,180 290,210 260,240 C230,270 200,290 170,300 C140,295 110,280 90,260 C70,240 55,210 50,180 C45,150 45,110 50,80 Z",
+// Accurate simplified world map SVG paths (Robinson-like projection)
+// These are recognizable continent outlines
+const continentPaths = {
+  // North America
+  northAmerica: `M45,55 L55,45 L68,38 L85,35 L110,32 L135,30 L160,32 L180,38 
+    L205,48 L225,58 L240,72 L248,90 L252,110 L255,135 L258,155 L255,175 
+    L248,195 L238,210 L225,225 L210,238 L195,248 L178,255 L165,258 
+    L155,262 L148,268 L142,278 L138,290 L135,298 L130,295 L122,288 
+    L115,278 L108,268 L100,260 L92,255 L85,252 L78,250 L70,250 
+    L62,252 L55,258 L48,268 L42,255 L38,240 L35,220 L35,195 
+    L38,170 L42,148 L45,128 L48,110 L48,90 L46,72 Z`,
   
   // Greenland
-  greenland: "M320,50 C340,45 370,50 385,70 C400,90 395,120 380,140 C365,155 340,160 320,150 C300,140 290,115 295,90 C300,70 310,55 320,50 Z",
+  greenland: `M310,42 L325,35 L345,32 L360,35 L372,45 L378,58 L380,75 
+    L378,95 L372,112 L362,125 L348,132 L332,135 L318,128 L308,115 
+    L302,98 L300,80 L302,62 Z`,
   
-  // Central America  
-  centralAmerica: "M150,295 C165,290 180,295 190,315 C200,335 195,360 180,375 C165,385 145,380 140,360 C135,340 140,310 150,295 Z",
+  // South America
+  southAmerica: `M195,320 L210,310 L228,308 L245,312 L260,320 L272,332 
+    L282,348 L290,368 L295,388 L298,410 L296,432 L290,452 L282,468 
+    L272,482 L258,492 L242,498 L228,500 L215,495 L205,485 L198,470 
+    L192,452 L188,432 L185,408 L185,388 L188,365 L192,345 Z`,
   
-  // South America - larger
-  southAmerica: "M200,370 C230,355 270,360 300,385 C330,410 345,455 340,500 C335,545 310,580 270,590 C230,595 190,575 170,540 C150,505 155,460 170,420 C185,385 195,375 200,370 Z",
+  // Europe
+  europe: `M420,92 L435,88 L452,85 L468,88 L485,92 L498,98 L512,105 
+    L525,115 L535,128 L540,142 L538,158 L532,172 L522,185 L510,195 
+    L498,202 L485,205 L472,208 L458,210 L448,205 L438,198 L428,188 
+    L420,178 L415,165 L412,150 L412,135 L415,118 L418,105 Z`,
   
-  // Europe - more visible
-  europe: "M420,100 C450,90 490,95 520,105 C550,115 575,135 580,165 C585,195 570,220 545,235 C520,250 485,255 455,245 C425,235 405,210 400,180 C395,150 400,120 420,100 Z",
+  // Africa
+  africa: `M438,215 L455,210 L475,208 L495,212 L515,218 L532,228 
+    L548,242 L562,258 L572,278 L580,300 L585,322 L588,345 L586,368 
+    L582,392 L575,412 L565,432 L552,448 L535,458 L518,465 L498,468 
+    L478,465 L460,458 L445,445 L435,428 L428,408 L424,385 L422,362 
+    L424,338 L428,315 L432,295 L435,272 L435,248 L436,230 Z`,
   
-  // UK & Ireland
-  uk: "M430,120 C445,110 465,115 475,135 C485,155 480,180 465,195 C450,205 430,200 420,185 C410,170 415,145 430,120 Z",
+  // Asia (mainland)
+  asia: `M540,80 L570,72 L605,65 L645,62 L685,65 L725,72 L762,82 
+    L798,95 L830,112 L855,132 L870,155 L875,178 L872,200 L862,218 
+    L848,232 L830,242 L808,248 L788,252 L770,258 L755,265 L742,275 
+    L732,288 L722,298 L712,305 L698,308 L682,305 L668,298 L655,288 
+    L642,275 L632,262 L622,248 L612,235 L600,222 L588,212 L575,205 
+    L562,200 L552,195 L542,188 L538,178 L535,165 L532,148 L530,128 
+    L532,108 L535,92 Z`,
   
-  // Africa - prominent
-  africa: "M445,230 C480,215 530,220 565,245 C600,270 625,320 635,375 C645,430 630,485 595,520 C560,555 510,565 465,545 C420,525 395,480 390,425 C385,370 400,310 420,270 C435,245 445,230 445,230 Z",
+  // Indian subcontinent (separate for better visibility)
+  india: `M630,252 L645,245 L660,242 L672,245 L685,252 L695,262 
+    L702,275 L706,290 L708,308 L705,325 L698,340 L688,352 L675,358 
+    L662,355 L650,345 L640,332 L635,315 L632,298 L630,278 L628,262 Z`,
   
-  // Middle East
-  middleEast: "M555,210 C590,200 625,215 650,245 C675,275 680,315 665,345 C650,375 615,390 580,380 C545,370 520,340 520,300 C520,260 535,225 555,210 Z",
-  
-  // Russia - spans across
-  russia: "M560,70 C620,55 700,50 780,60 C860,70 920,95 950,130 C980,165 970,200 930,220 C890,240 820,245 750,235 C680,225 620,200 580,165 C540,130 530,95 560,70 Z",
-  
-  // Central/East Asia
-  asia: "M650,180 C700,165 760,175 810,200 C860,225 895,270 900,320 C905,370 880,410 835,430 C790,450 730,445 680,420 C630,395 600,350 600,300 C600,250 615,205 650,180 Z",
-  
-  // India subcontinent
-  india: "M630,260 C665,245 705,255 730,285 C755,315 765,360 755,400 C745,440 715,465 680,470 C645,475 615,455 600,420 C585,385 590,340 610,300 C625,270 630,260 630,260 Z",
+  // Bangladesh (highlighted separately)
+  bangladesh: `M698,262 L708,258 L715,262 L718,270 L716,280 L710,288 
+    L702,285 L698,278 L696,270 Z`,
   
   // Southeast Asia
-  southeastAsia: "M735,320 C770,310 810,325 835,355 C860,385 865,425 845,455 C825,485 785,495 750,480 C715,465 700,430 705,395 C710,360 720,335 735,320 Z",
+  southeastAsia: `M725,285 L742,278 L758,280 L772,288 L785,300 
+    L795,315 L802,332 L805,350 L800,368 L790,382 L775,390 L758,388 
+    L742,382 L730,370 L722,355 L718,338 L718,318 L720,300 Z`,
   
-  // Japan
-  japan: "M855,190 C875,180 900,190 915,215 C930,240 930,275 915,300 C900,320 875,325 855,310 C835,295 830,260 840,235 C850,210 855,195 855,190 Z",
+  // Japan & Korea
+  japan: `M845,178 L855,172 L865,175 L872,185 L878,198 L880,212 
+    L878,228 L872,240 L862,248 L852,245 L845,235 L840,222 L838,208 
+    L840,192 Z`,
   
-  // Australia - larger
-  australia: "M765,395 C815,375 875,385 920,415 C965,445 985,495 975,545 C965,595 920,625 865,630 C810,635 755,610 725,565 C695,520 700,465 730,425 C755,400 765,395 765,395 Z",
+  // Australia
+  australia: `M765,388 L792,378 L822,375 L852,380 L878,392 L900,408 
+    L918,428 L928,452 L932,478 L928,502 L918,522 L902,535 L882,542 
+    L858,545 L835,542 L812,535 L792,522 L778,505 L768,485 L762,462 
+    L760,438 L762,412 Z`,
   
   // New Zealand
-  newZealand: "M920,480 C940,475 960,490 965,515 C970,540 960,565 940,575 C920,585 900,575 895,555 C890,535 900,505 920,480 Z",
+  newZealand: `M915,465 L925,460 L935,465 L940,478 L938,492 L932,505 
+    L922,510 L912,505 L908,492 L910,478 Z`,
   
-  // Indonesia archipelago
-  indonesia: "M750,375 C785,365 830,375 865,400 C900,425 910,460 895,485 C880,510 840,520 800,510 C760,500 735,475 735,445 C735,415 745,390 750,375 Z",
+  // Indonesia islands
+  indonesia: `M748,368 L768,362 L790,365 L812,372 L832,382 L848,395 
+    L858,410 L855,425 L842,432 L825,430 L805,425 L785,418 L768,408 
+    L755,395 L748,382 Z`,
+  
+  // Middle East
+  middleEast: `M548,205 L568,200 L588,202 L608,210 L622,222 L632,238 
+    L638,255 L635,268 L625,278 L612,285 L598,288 L582,285 L568,278 
+    L558,268 L550,255 L545,240 L542,225 L545,212 Z`,
 };
 
 const AlumniWorldMap = () => {
@@ -146,8 +188,8 @@ const AlumniWorldMap = () => {
 
   const handleZoomOut = useCallback(() => {
     setViewBox(prev => ({
-      x: Math.max(0, prev.x - prev.width * 0.125),
-      y: Math.max(0, prev.y - prev.height * 0.125),
+      x: Math.max(-100, prev.x - prev.width * 0.125),
+      y: Math.max(-50, prev.y - prev.height * 0.125),
       width: Math.min(1200, prev.width * 1.25),
       height: Math.min(700, prev.height * 1.25),
     }));
@@ -169,7 +211,7 @@ const AlumniWorldMap = () => {
     const dy = (e.clientY - dragStart.y) * (viewBox.height / 550);
     setViewBox(prev => ({
       ...prev,
-      x: Math.max(-200, Math.min(400, prev.x - dx)),
+      x: Math.max(-200, Math.min(500, prev.x - dx)),
       y: Math.max(-100, Math.min(200, prev.y - dy)),
     }));
     setDragStart({ x: e.clientX, y: e.clientY });
@@ -181,11 +223,8 @@ const AlumniWorldMap = () => {
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    if (e.deltaY < 0) {
-      handleZoomIn();
-    } else {
-      handleZoomOut();
-    }
+    if (e.deltaY < 0) handleZoomIn();
+    else handleZoomOut();
   }, [handleZoomIn, handleZoomOut]);
 
   const focusOnLocation = useCallback((country: string) => {
@@ -213,7 +252,7 @@ const AlumniWorldMap = () => {
         <div className="bg-gradient-to-r from-primary/90 to-primary/70 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 shadow-lg flex items-center gap-2 text-primary-foreground">
           <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           <span className="text-xs sm:text-sm font-bold">{totalAlumni}</span>
-          <span className="text-xs hidden sm:inline opacity-80">Alumni</span>
+          <span className="text-xs hidden sm:inline opacity-80">Members</span>
         </div>
         <div className="bg-gradient-to-r from-secondary/90 to-secondary/70 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 shadow-lg flex items-center gap-2 text-secondary-foreground">
           <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -229,28 +268,13 @@ const AlumniWorldMap = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.6 }}
       >
-        <Button
-          variant="secondary"
-          size="icon"
-          className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all"
-          onClick={handleZoomIn}
-        >
+        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all" onClick={handleZoomIn}>
           <ZoomIn className="h-4 w-4" />
         </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all"
-          onClick={handleZoomOut}
-        >
+        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all" onClick={handleZoomOut}>
           <ZoomOut className="h-4 w-4" />
         </Button>
-        <Button
-          variant="secondary"
-          size="icon"
-          className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all"
-          onClick={handleReset}
-        >
+        <Button variant="secondary" size="icon" className="h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:border-primary/50 hover:scale-110 transition-all" onClick={handleReset}>
           <RotateCcw className="h-4 w-4" />
         </Button>
       </motion.div>
@@ -269,60 +293,56 @@ const AlumniWorldMap = () => {
           onWheel={handleWheel}
         >
           <defs>
-            {/* Ocean gradient - deep space feel */}
             <radialGradient id="oceanGradient" cx="50%" cy="50%" r="70%">
               <stop offset="0%" stopColor="hsl(210, 60%, 15%)" />
               <stop offset="50%" stopColor="hsl(210, 55%, 10%)" />
               <stop offset="100%" stopColor="hsl(220, 50%, 6%)" />
             </radialGradient>
             
-            {/* Land gradients - brighter and more visible */}
             <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="hsl(145, 40%, 45%)" />
               <stop offset="50%" stopColor="hsl(140, 35%, 38%)" />
               <stop offset="100%" stopColor="hsl(135, 30%, 32%)" />
             </linearGradient>
-            
-            <linearGradient id="landGradientHover" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="hsl(145, 45%, 52%)" />
-              <stop offset="100%" stopColor="hsl(140, 40%, 42%)" />
+
+            <linearGradient id="indiaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(145, 45%, 50%)" />
+              <stop offset="100%" stopColor="hsl(140, 40%, 40%)" />
+            </linearGradient>
+
+            <linearGradient id="bangladeshGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="hsl(120, 50%, 50%)" />
+              <stop offset="100%" stopColor="hsl(120, 45%, 40%)" />
             </linearGradient>
             
-            {/* Land stroke/border */}
             <linearGradient id="landStroke" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="hsl(145, 35%, 55%)" />
               <stop offset="100%" stopColor="hsl(140, 30%, 45%)" />
             </linearGradient>
 
-            {/* Marker gradients - beautiful color scheme */}
             <radialGradient id="markerGradientHot" cx="30%" cy="30%">
               <stop offset="0%" stopColor="hsl(350, 90%, 65%)" />
               <stop offset="100%" stopColor="hsl(350, 80%, 50%)" />
             </radialGradient>
-            
             <radialGradient id="markerGradientWarm" cx="30%" cy="30%">
               <stop offset="0%" stopColor="hsl(25, 95%, 60%)" />
               <stop offset="100%" stopColor="hsl(15, 85%, 50%)" />
             </radialGradient>
-            
             <radialGradient id="markerGradientMedium" cx="30%" cy="30%">
               <stop offset="0%" stopColor="hsl(45, 95%, 60%)" />
               <stop offset="100%" stopColor="hsl(40, 85%, 50%)" />
             </radialGradient>
-            
             <radialGradient id="markerGradientCool" cx="30%" cy="30%">
               <stop offset="0%" stopColor="hsl(200, 90%, 60%)" />
               <stop offset="100%" stopColor="hsl(210, 80%, 50%)" />
             </radialGradient>
 
-            {/* Connection line gradient */}
             <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0" />
               <stop offset="50%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0.4" />
               <stop offset="100%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0" />
             </linearGradient>
 
-            {/* Glow filters */}
             <filter id="markerGlow" x="-100%" y="-100%" width="300%" height="300%">
               <feGaussianBlur stdDeviation="4" result="blur"/>
               <feMerge>
@@ -332,73 +352,55 @@ const AlumniWorldMap = () => {
             </filter>
             
             <filter id="landShadow">
-              <feDropShadow dx="2" dy="4" stdDeviation="6" floodColor="hsl(0, 0%, 0%)" floodOpacity="0.4"/>
+              <feDropShadow dx="2" dy="3" stdDeviation="5" floodColor="hsl(0, 0%, 0%)" floodOpacity="0.35"/>
             </filter>
-
-            {/* Animated gradient for connection lines */}
-            <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0">
-                <animate attributeName="offset" values="0;1" dur="2s" repeatCount="indefinite"/>
-              </stop>
-              <stop offset="20%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0.6">
-                <animate attributeName="offset" values="0.2;1.2" dur="2s" repeatCount="indefinite"/>
-              </stop>
-              <stop offset="40%" stopColor="hsl(200, 80%, 60%)" stopOpacity="0">
-                <animate attributeName="offset" values="0.4;1.4" dur="2s" repeatCount="indefinite"/>
-              </stop>
-            </linearGradient>
           </defs>
           
-          {/* Ocean background */}
+          {/* Ocean */}
           <rect x="-200" y="-100" width="1400" height="750" fill="url(#oceanGradient)" />
           
-          {/* Subtle grid - more elegant */}
-          {[0, 100, 200, 300, 400, 500].map((y, i) => (
-            <line
-              key={`lat-${i}`}
-              x1="-200"
-              y1={y}
-              x2="1200"
-              y2={y}
-              stroke="hsl(210, 40%, 20%)"
-              strokeWidth="0.5"
-              strokeDasharray="4,8"
-              opacity="0.3"
-            />
+          {/* Grid lines */}
+          {[0, 110, 220, 330, 440, 550].map((y, i) => (
+            <line key={`lat-${i}`} x1="-200" y1={y} x2="1200" y2={y} stroke="hsl(210, 40%, 20%)" strokeWidth="0.5" strokeDasharray="4,8" opacity="0.25" />
           ))}
-          {[0, 200, 400, 600, 800, 1000].map((x, i) => (
-            <line
-              key={`lng-${i}`}
-              x1={x}
-              y1="-100"
-              x2={x}
-              y2="600"
-              stroke="hsl(210, 40%, 20%)"
-              strokeWidth="0.5"
-              strokeDasharray="4,8"
-              opacity="0.3"
-            />
+          {[0, 167, 333, 500, 667, 833, 1000].map((x, i) => (
+            <line key={`lng-${i}`} x1={x} y1="-100" x2={x} y2="600" stroke="hsl(210, 40%, 20%)" strokeWidth="0.5" strokeDasharray="4,8" opacity="0.25" />
           ))}
 
-          {/* Continent shapes with shadow */}
+          {/* Continent shapes */}
           <g filter="url(#landShadow)">
-            {Object.entries(worldMapPaths).map(([name, path]) => (
-              <motion.path
-                key={name}
-                d={path}
-                fill="url(#landGradient)"
-                stroke="url(#landStroke)"
-                strokeWidth="2"
-                strokeLinejoin="round"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.1 }}
-                style={{ transformOrigin: 'center' }}
-              />
-            ))}
+            {Object.entries(continentPaths).map(([name, path]) => {
+              // Use special gradient for India and Bangladesh
+              let fill = "url(#landGradient)";
+              let strokeColor = "url(#landStroke)";
+              let strokeW = 1.5;
+              
+              if (name === 'india') {
+                fill = "url(#indiaGradient)";
+                strokeW = 2;
+              } else if (name === 'bangladesh') {
+                fill = "url(#bangladeshGradient)";
+                strokeW = 2;
+              }
+
+              return (
+                <motion.path
+                  key={name}
+                  d={path}
+                  fill={fill}
+                  stroke={strokeColor}
+                  strokeWidth={strokeW}
+                  strokeLinejoin="round"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  style={{ transformOrigin: 'center' }}
+                />
+              );
+            })}
           </g>
 
-          {/* Connection lines between major locations */}
+          {/* Connection arcs between top locations */}
           {locations.length > 1 && locations.slice(0, 8).map((loc, i) => {
             const pos = countryPositions[loc.country];
             const nextLoc = locations[(i + 1) % Math.min(8, locations.length)];
@@ -422,6 +424,30 @@ const AlumniWorldMap = () => {
             );
           })}
 
+          {/* Country labels for key regions (subtle) */}
+          {[
+            { name: 'INDIA', x: 665, y: 310 },
+            { name: 'BD', x: 708, y: 278 },
+          ].map((label) => (
+            <motion.text
+              key={label.name}
+              x={label.x}
+              y={label.y}
+              textAnchor="middle"
+              fill="hsl(145, 30%, 65%)"
+              fontSize="8"
+              fontWeight="600"
+              letterSpacing="2"
+              opacity="0.4"
+              style={{ pointerEvents: 'none' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              transition={{ delay: 1.5 }}
+            >
+              {label.name}
+            </motion.text>
+          ))}
+
           {/* Alumni location markers */}
           {locations.map((location, index) => {
             const pos = countryPositions[location.country];
@@ -443,47 +469,28 @@ const AlumniWorldMap = () => {
                 }}
                 style={{ cursor: 'pointer' }}
               >
-                {/* Outer pulse ring */}
+                {/* Outer pulse */}
                 <motion.circle
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={size + 15}
+                  cx={pos.x} cy={pos.y} r={size + 15}
                   fill={`url(#${gradientId})`}
                   initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ 
-                    scale: [0.8, 1.8, 0.8],
-                    opacity: [0.3, 0, 0.3]
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    delay: index * 0.2
-                  }}
+                  animate={{ scale: [0.8, 1.8, 0.8], opacity: [0.3, 0, 0.3] }}
+                  transition={{ duration: 3, repeat: Infinity, delay: index * 0.2 }}
                 />
                 
-                {/* Inner glow ring */}
+                {/* Inner glow */}
                 <motion.circle
-                  cx={pos.x}
-                  cy={pos.y}
-                  r={size + 6}
+                  cx={pos.x} cy={pos.y} r={size + 6}
                   fill={`url(#${gradientId})`}
                   opacity={0.25}
                   initial={{ scale: 1 }}
-                  animate={{ 
-                    scale: [1, 1.4, 1],
-                    opacity: [0.25, 0.1, 0.25]
-                  }}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    delay: index * 0.15
-                  }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.25, 0.1, 0.25] }}
+                  transition={{ duration: 2.5, repeat: Infinity, delay: index * 0.15 }}
                 />
                 
                 {/* Main marker */}
                 <motion.circle
-                  cx={pos.x}
-                  cy={pos.y}
+                  cx={pos.x} cy={pos.y}
                   r={isHovered || isSelected ? size + 5 : size}
                   fill={`url(#${gradientId})`}
                   stroke="white"
@@ -491,24 +498,18 @@ const AlumniWorldMap = () => {
                   filter="url(#markerGlow)"
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ 
-                    delay: 0.5 + index * 0.05,
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 15
-                  }}
+                  transition={{ delay: 0.5 + index * 0.05, type: "spring", stiffness: 200, damping: 15 }}
                 />
                 
-                {/* Count label */}
+                {/* Count */}
                 {(location.count >= 2 || isHovered) && (
                   <motion.text
-                    x={pos.x}
-                    y={pos.y + 4}
+                    x={pos.x} y={pos.y + 4}
                     textAnchor="middle"
                     fill="white"
                     fontSize={size > 12 ? "12" : "10"}
                     fontWeight="bold"
-                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}
+                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.8)', pointerEvents: 'none' }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.8 + index * 0.05 }}
@@ -517,32 +518,29 @@ const AlumniWorldMap = () => {
                   </motion.text>
                 )}
                 
-                {/* Country label on hover */}
+                {/* Hover label */}
                 {(isHovered || isSelected) && (
-                  <motion.g
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
+                  <motion.g initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
                     <rect
-                      x={pos.x - 40}
-                      y={pos.y - size - 25}
-                      width="80"
-                      height="18"
-                      rx="9"
+                      x={pos.x - 45}
+                      y={pos.y - size - 28}
+                      width="90"
+                      height="20"
+                      rx="10"
                       fill="hsl(var(--card))"
                       stroke="hsl(var(--primary))"
-                      strokeWidth="1"
+                      strokeWidth="1.5"
                       opacity="0.95"
                     />
                     <text
                       x={pos.x}
-                      y={pos.y - size - 12}
+                      y={pos.y - size - 14}
                       textAnchor="middle"
                       fill="hsl(var(--foreground))"
                       fontSize="10"
-                      fontWeight="600"
+                      fontWeight="700"
                     >
-                      {location.country.length > 12 ? location.country.slice(0, 12) + '...' : location.country}
+                      {location.country.length > 14 ? location.country.slice(0, 14) + '…' : location.country}
                     </text>
                   </motion.g>
                 )}
@@ -550,17 +548,8 @@ const AlumniWorldMap = () => {
             );
           })}
 
-          {/* Equator line - subtle */}
-          <line
-            x1="-200"
-            y1="275"
-            x2="1200"
-            y2="275"
-            stroke="hsl(45, 60%, 50%)"
-            strokeWidth="0.8"
-            strokeDasharray="10,15"
-            opacity="0.2"
-          />
+          {/* Equator */}
+          <line x1="-200" y1="275" x2="1200" y2="275" stroke="hsl(45, 60%, 50%)" strokeWidth="0.8" strokeDasharray="10,15" opacity="0.15" />
         </svg>
 
         {/* Hover tooltip */}
@@ -598,13 +587,13 @@ const AlumniWorldMap = () => {
               <div className="flex items-center gap-2 pt-2 border-t border-border">
                 <Users className="w-4 h-4 text-primary" />
                 <span className="text-lg font-bold text-primary">{location.count}</span>
-                <span className="text-xs text-muted-foreground">alumni</span>
+                <span className="text-xs text-muted-foreground">members</span>
               </div>
             </motion.div>
           );
         })()}
 
-        {/* Loading overlay */}
+        {/* Loading */}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md">
             <div className="flex flex-col items-center gap-4">
@@ -630,7 +619,7 @@ const AlumniWorldMap = () => {
         )}
       </div>
 
-      {/* Legend - more visual */}
+      {/* Legend */}
       <motion.div 
         className="flex flex-wrap justify-center gap-4 sm:gap-6 mt-5 px-4"
         initial={{ opacity: 0, y: 10 }}
@@ -638,27 +627,17 @@ const AlumniWorldMap = () => {
         transition={{ delay: 1.2 }}
       >
         {[
-          { min: 1, max: 4, gradient: 'markerGradientCool', label: '1-4' },
-          { min: 5, max: 9, gradient: 'markerGradientMedium', label: '5-9' },
-          { min: 10, max: 19, gradient: 'markerGradientWarm', label: '10-19' },
-          { min: 20, max: null, gradient: 'markerGradientHot', label: '20+' },
+          { gradient: 'markerGradientCool', label: '1-4', color1: 'hsl(200, 90%, 60%)', color2: 'hsl(210, 80%, 50%)' },
+          { gradient: 'markerGradientMedium', label: '5-9', color1: 'hsl(45, 95%, 60%)', color2: 'hsl(40, 85%, 50%)' },
+          { gradient: 'markerGradientWarm', label: '10-19', color1: 'hsl(25, 95%, 60%)', color2: 'hsl(15, 85%, 50%)' },
+          { gradient: 'markerGradientHot', label: '20+', color1: 'hsl(350, 90%, 65%)', color2: 'hsl(350, 80%, 50%)' },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-2 bg-card/50 px-3 py-1.5 rounded-full border border-border/50">
             <svg width="16" height="16" viewBox="0 0 16 16">
               <defs>
                 <radialGradient id={`legend-${item.gradient}`} cx="30%" cy="30%">
-                  <stop offset="0%" stopColor={
-                    item.gradient === 'markerGradientHot' ? 'hsl(350, 90%, 65%)' :
-                    item.gradient === 'markerGradientWarm' ? 'hsl(25, 95%, 60%)' :
-                    item.gradient === 'markerGradientMedium' ? 'hsl(45, 95%, 60%)' :
-                    'hsl(200, 90%, 60%)'
-                  } />
-                  <stop offset="100%" stopColor={
-                    item.gradient === 'markerGradientHot' ? 'hsl(350, 80%, 50%)' :
-                    item.gradient === 'markerGradientWarm' ? 'hsl(15, 85%, 50%)' :
-                    item.gradient === 'markerGradientMedium' ? 'hsl(40, 85%, 50%)' :
-                    'hsl(210, 80%, 50%)'
-                  } />
+                  <stop offset="0%" stopColor={item.color1} />
+                  <stop offset="100%" stopColor={item.color2} />
                 </radialGradient>
               </defs>
               <circle cx="8" cy="8" r="6" fill={`url(#legend-${item.gradient})`} stroke="white" strokeWidth="1" />
@@ -668,7 +647,7 @@ const AlumniWorldMap = () => {
         ))}
       </motion.div>
 
-      {/* Country quick access - cleaner design */}
+      {/* Country quick access */}
       {locations.length > 0 && (
         <motion.div 
           className="mt-5 flex flex-wrap justify-center gap-2 px-2"
