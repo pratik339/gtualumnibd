@@ -356,15 +356,17 @@ export default function ProfileView() {
                     )}
                   </motion.div>
 
-                  {/* ID Card Section */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.55 }}
-                  >
-                    <Separator className="my-6" />
-                    <IdCard profile={profile} />
-                  </motion.div>
+                  {/* ID Card Section - Only for own profile, non-admin users */}
+                  {isOwnProfile && !isProfileAdmin && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.4, delay: 0.55 }}
+                    >
+                      <Separator className="my-6" />
+                      <IdCard profile={profile} />
+                    </motion.div>
+                  )}
 
                   {/* Experience & Achievements & Projects */}
                   {(profile.experience || profile.achievements || (profile as any).projects) && (
