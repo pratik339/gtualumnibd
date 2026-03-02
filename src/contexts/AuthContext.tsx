@@ -50,7 +50,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const clearBrokenAuthStorage = () => {
+    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
+    if (!projectId) return;
+
+    const tokenKey = `sb-${projectId}-auth-token`;
+    const lockKey = `lock:sb-${projectId}-auth-token`;
+
+    // Clear stale lock that can block auth initialization
+    localStorage.removeItem(lockKey);
+
+    const rawToken = localStorage.getItem(tokenKey);
+    if (!rawToken) return;
+
+    try {
+      const parsed = JSON.parse(rawToken);
+      const refreshToken = parsed?.refresh_token;
+      if (typeof refreshToken !== 'string' || refreshToken.length < 30) {
+        localStorage.removeItem(tokenKey);
+      }
+    } catch {
+      localStorage.removeItem(tokenKey);
+    }
+  };
+
   useEffect(() => {
+    clearBrokenAuthStorage();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
@@ -64,18 +90,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setIsAdmin(false);
         }
+
+        if (event === 'SIGNED_OUT') {
+          clearBrokenAuthStorage();
+        }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      if (session?.user) {
-        checkAdminRole(session.user.id);
-      }
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        if (error) {
+          console.error('Error restoring auth session:', error);
+          clearBrokenAuthStorage();
+          setSession(null);
+          setUser(null);
+          setIsAdmin(false);
+          setLoading(false);
+          return;
+        }
+
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        if (session?.user) {
+          checkAdminRole(session.user.id);
+        }
+      })
+      .catch((error) => {
+        console.error('Unexpected auth initialization error:', error);
+        clearBrokenAuthStorage();
+        setSession(null);
+        setUser(null);
+        setIsAdmin(false);
+        setLoading(false);
+      });
 
     return () => subscription.unsubscribe();
   }, []);
