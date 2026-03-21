@@ -6,7 +6,39 @@ interface AlumniLocation {
   city: string | null;
   count: number;
   coordinates: [number, number]; // [lng, lat]
+  /** If set, this is a city-level marker inside a country */
+  isCityLevel?: boolean;
 }
+
+// Bangladesh city coordinates for city-level markers
+const bangladeshCityCoordinates: Record<string, [number, number]> = {
+  'Dhaka': [90.4125, 23.8103],
+  'Chittagong': [91.8340, 22.3569],
+  'Chattogram': [91.8340, 22.3569],
+  'Khulna': [89.5403, 22.8456],
+  'Rajshahi': [88.6042, 24.3636],
+  'Sylhet': [91.8687, 24.8949],
+  'Rangpur': [89.2752, 25.7439],
+  'Barishal': [90.3535, 22.7010],
+  'Barisal': [90.3535, 22.7010],
+  'Comilla': [91.1870, 23.4607],
+  'Cumilla': [91.1870, 23.4607],
+  'Mymensingh': [90.4074, 24.7471],
+  'Habiganj': [91.4155, 24.3840],
+  'Jessore': [89.2000, 23.1667],
+  'Jashore': [89.2000, 23.1667],
+  'Bogra': [89.3710, 24.8465],
+  'Bogura': [89.3710, 24.8465],
+  'Narayanganj': [90.5000, 23.6333],
+  'Gazipur': [90.4000, 24.0000],
+  'Dinajpur': [88.6333, 25.6333],
+  'Brahmanbaria': [91.1000, 23.9667],
+  'Narsingdi': [90.7167, 23.9167],
+  'Tangail': [89.9167, 24.2500],
+  'Noakhali': [91.1000, 22.8333],
+  'Patuakhali': [90.3500, 22.3500],
+  'Cox\'s Bazar': [91.9833, 21.4333],
+};
 
 // Country to coordinates mapping
 const countryCoordinates: Record<string, [number, number]> = {
