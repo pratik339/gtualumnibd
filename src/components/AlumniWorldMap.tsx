@@ -589,9 +589,16 @@ const AlumniWorldMap = () => {
 
         {/* Hover tooltip */}
         {hoveredLocation && (() => {
-          const location = locations.find(l => l.country === hoveredLocation);
-          const pos = location ? countryPositions[location.country] : null;
-          if (!location || !pos) return null;
+          const location = locations.find(l => {
+            const key = l.isCityLevel ? `${l.country}-${l.city}` : l.country;
+            return key === hoveredLocation;
+          });
+          if (!location) return null;
+          const posKey = location.isCityLevel && location.city 
+            ? `Bangladesh:${location.city}` 
+            : location.country;
+          const pos = countryPositions[posKey] || countryPositions[location.country];
+          if (!pos) return null;
           
           const xPercent = ((pos.x - viewBox.x) / viewBox.width) * 100;
           const yPercent = ((pos.y - viewBox.y) / viewBox.height) * 100;
