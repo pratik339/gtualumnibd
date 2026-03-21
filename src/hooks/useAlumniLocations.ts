@@ -129,11 +129,13 @@ export const useAlumniLocations = () => {
             }
           });
 
-          const locationData: AlumniLocation[] = Object.entries(countryGroups)
+          // For Bangladesh, create city-level markers instead of a single country marker
+          const bangladeshGroup = countryGroups['Bangladesh'];
+          const nonBangladeshLocations: AlumniLocation[] = Object.entries(countryGroups)
+            .filter(([country]) => country !== 'Bangladesh')
             .map(([country, data]) => {
               const coords = countryCoordinates[country];
               if (!coords) return null;
-              
               return {
                 country,
                 city: data.cities.size > 0 ? Array.from(data.cities)[0] : null,
@@ -142,6 +144,57 @@ export const useAlumniLocations = () => {
               };
             })
             .filter((loc): loc is AlumniLocation => loc !== null);
+
+          // Build city-level markers for Bangladesh
+          const bangladeshCityLocations: AlumniLocation[] = [];
+          if (bangladeshGroup) {
+            const cityCounts: Record<string, number> = {};
+            let unlocatedCount = 0;
+
+            // Re-scan profiles for Bangladesh city breakdown
+            profiles.forEach(profile => {
+              if (profile.location_country === 'Bangladesh') {
+                if (profile.location_city && bangladeshCityCoordinates[profile.location_city]) {
+                  cityCounts[profile.location_city] = (cityCounts[profile.location_city] || 0) + 1;
+                } else if (profile.location_city) {
+                  // Try case-insensitive match
+                  const matched = Object.keys(bangladeshCityCoordinates).find(
+                    c => c.toLowerCase() === profile.location_city!.toLowerCase()
+                  );
+                  if (matched) {
+                    cityCounts[matched] = (cityCounts[matched] || 0) + 1;
+                  } else {
+                    unlocatedCount++;
+                  }
+                } else {
+                  unlocatedCount++;
+                }
+              }
+            });
+
+            Object.entries(cityCounts).forEach(([city, count]) => {
+              bangladeshCityLocations.push({
+                country: 'Bangladesh',
+                city,
+                count,
+                coordinates: bangladeshCityCoordinates[city],
+                isCityLevel: true,
+              });
+            });
+
+            // If there are members without a recognized city, show them on the country marker
+            if (unlocatedCount > 0) {
+              bangladeshCityLocations.push({
+                country: 'Bangladesh',
+                city: null,
+                count: unlocatedCount,
+                coordinates: countryCoordinates['Bangladesh'],
+                isCityLevel: false,
+              });
+            }
+          }
+
+          const locationData = [...nonBangladeshLocations, ...bangladeshCityLocations];
 
           setLocations(locationData);
           setTotalAlumni(profiles.length);
