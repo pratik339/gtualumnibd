@@ -206,7 +206,7 @@ export default function Analytics() {
   const collegeChartData = Object.entries(collegeData)
     .map(([name, value]) => ({ name: name.length > 20 ? name.slice(0, 20) + '...' : name, fullName: name, value }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 6);
+    .slice(0, 15);
 
   // Location distribution (by college city)
   const locationData = profiles
