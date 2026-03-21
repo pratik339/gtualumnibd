@@ -628,7 +628,6 @@ const AlumniWorldMap = () => {
                   ) : location.city ? (
                     <div className="text-xs text-muted-foreground">{location.city}</div>
                   ) : null}
-                  )}
                 </div>
               </div>
               <div className="flex items-center gap-2 pt-2 border-t border-border">
