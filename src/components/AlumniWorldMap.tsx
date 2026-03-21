@@ -472,7 +472,15 @@ const AlumniWorldMap = () => {
 
           {/* Alumni location markers */}
           {locations.map((location, index) => {
-            const pos = countryPositions[location.country];
+            // For city-level Bangladesh markers, use city-specific position
+            const posKey = location.isCityLevel && location.city 
+              ? `Bangladesh:${location.city}` 
+              : location.country;
+            const pos = countryPositions[posKey] || countryPositions[location.country];
+            if (!pos) return null;
+            
+            const markerKey = location.isCityLevel ? `${location.country}-${location.city}` : location.country;
+            const displayLabel = location.isCityLevel && location.city ? location.city : location.country;
             if (!pos) return null;
             
             const size = getMarkerSize(location.count);
