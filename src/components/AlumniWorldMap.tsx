@@ -53,6 +53,28 @@ const countryPositions: Record<string, { x: number; y: number }> = {
   'Turkey': { x: 545, y: 210 },
   'Pakistan': { x: 640, y: 260 },
   'Bangladesh': { x: 705, y: 275 },
+  // Bangladesh cities (zoomed-in positions, offset from Bangladesh center)
+  'Bangladesh:Dhaka': { x: 706, y: 276 },
+  'Bangladesh:Chittagong': { x: 712, y: 282 },
+  'Bangladesh:Chattogram': { x: 712, y: 282 },
+  'Bangladesh:Khulna': { x: 700, y: 280 },
+  'Bangladesh:Rajshahi': { x: 698, y: 273 },
+  'Bangladesh:Sylhet': { x: 712, y: 271 },
+  'Bangladesh:Rangpur': { x: 700, y: 268 },
+  'Bangladesh:Barishal': { x: 706, y: 282 },
+  'Bangladesh:Barisal': { x: 706, y: 282 },
+  'Bangladesh:Comilla': { x: 710, y: 277 },
+  'Bangladesh:Cumilla': { x: 710, y: 277 },
+  'Bangladesh:Mymensingh': { x: 706, y: 271 },
+  'Bangladesh:Habiganj': { x: 712, y: 274 },
+  'Bangladesh:Jessore': { x: 699, y: 278 },
+  'Bangladesh:Jashore': { x: 699, y: 278 },
+  'Bangladesh:Bogra': { x: 700, y: 271 },
+  'Bangladesh:Bogura': { x: 700, y: 271 },
+  'Bangladesh:Narayanganj': { x: 707, y: 277 },
+  'Bangladesh:Gazipur': { x: 706, y: 274 },
+  'Bangladesh:Dinajpur': { x: 698, y: 268 },
+  'Bangladesh:Cox\'s Bazar': { x: 713, y: 286 },
   'Sri Lanka': { x: 682, y: 325 },
   'Nepal': { x: 688, y: 258 },
   'Oman': { x: 610, y: 280 },
@@ -401,9 +423,10 @@ const AlumniWorldMap = () => {
           </g>
 
           {/* Connection arcs between top locations */}
-          {locations.length > 1 && locations.slice(0, 8).map((loc, i) => {
+          {locations.filter(l => !l.isCityLevel).length > 1 && locations.filter(l => !l.isCityLevel).slice(0, 8).map((loc, i) => {
             const pos = countryPositions[loc.country];
-            const nextLoc = locations[(i + 1) % Math.min(8, locations.length)];
+            const countryLocs = locations.filter(l => !l.isCityLevel);
+            const nextLoc = countryLocs[(i + 1) % Math.min(8, countryLocs.length)];
             const nextPos = countryPositions[nextLoc?.country];
             if (!pos || !nextPos) return null;
             
@@ -450,22 +473,35 @@ const AlumniWorldMap = () => {
 
           {/* Alumni location markers */}
           {locations.map((location, index) => {
-            const pos = countryPositions[location.country];
+            // For city-level Bangladesh markers, use city-specific position
+            const posKey = location.isCityLevel && location.city 
+              ? `Bangladesh:${location.city}` 
+              : location.country;
+            const pos = countryPositions[posKey] || countryPositions[location.country];
             if (!pos) return null;
+            
+            const markerKey = location.isCityLevel ? `${location.country}-${location.city}` : location.country;
+            const displayLabel = location.isCityLevel && location.city ? location.city : location.country;
             
             const size = getMarkerSize(location.count);
             const gradientId = getMarkerGradientId(location.count);
-            const isHovered = hoveredLocation === location.country;
-            const isSelected = selectedLocation === location.country;
+            const isHovered = hoveredLocation === markerKey;
+            const isSelected = selectedLocation === markerKey;
             
             return (
               <g
-                key={location.country}
-                onMouseEnter={() => setHoveredLocation(location.country)}
+                key={markerKey}
+                onMouseEnter={() => setHoveredLocation(markerKey)}
                 onMouseLeave={() => setHoveredLocation(null)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  focusOnLocation(location.country);
+                  // For city-level, zoom into Bangladesh region
+                  if (location.isCityLevel) {
+                    setViewBox({ x: 680, y: 255, width: 60, height: 45 });
+                    setSelectedLocation(markerKey);
+                  } else {
+                    focusOnLocation(location.country);
+                  }
                 }}
                 style={{ cursor: 'pointer' }}
               >
@@ -540,7 +576,7 @@ const AlumniWorldMap = () => {
                       fontSize="10"
                       fontWeight="700"
                     >
-                      {location.country.length > 14 ? location.country.slice(0, 14) + '…' : location.country}
+                      {displayLabel.length > 14 ? displayLabel.slice(0, 14) + '…' : displayLabel}
                     </text>
                   </motion.g>
                 )}
@@ -554,9 +590,16 @@ const AlumniWorldMap = () => {
 
         {/* Hover tooltip */}
         {hoveredLocation && (() => {
-          const location = locations.find(l => l.country === hoveredLocation);
-          const pos = location ? countryPositions[location.country] : null;
-          if (!location || !pos) return null;
+          const location = locations.find(l => {
+            const key = l.isCityLevel ? `${l.country}-${l.city}` : l.country;
+            return key === hoveredLocation;
+          });
+          if (!location) return null;
+          const posKey = location.isCityLevel && location.city 
+            ? `Bangladesh:${location.city}` 
+            : location.country;
+          const pos = countryPositions[posKey] || countryPositions[location.country];
+          if (!pos) return null;
           
           const xPercent = ((pos.x - viewBox.x) / viewBox.width) * 100;
           const yPercent = ((pos.y - viewBox.y) / viewBox.height) * 100;
@@ -578,10 +621,14 @@ const AlumniWorldMap = () => {
                   <MapPin className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <div className="font-bold text-sm text-foreground">{location.country}</div>
-                  {location.city && (
+                  <div className="font-bold text-sm text-foreground">
+                    {location.isCityLevel && location.city ? location.city : location.country}
+                  </div>
+                  {location.isCityLevel ? (
+                    <div className="text-xs text-muted-foreground">Bangladesh</div>
+                  ) : location.city ? (
                     <div className="text-xs text-muted-foreground">{location.city}</div>
-                  )}
+                  ) : null}
                 </div>
               </div>
               <div className="flex items-center gap-2 pt-2 border-t border-border">
@@ -656,6 +703,7 @@ const AlumniWorldMap = () => {
           transition={{ delay: 1.5 }}
         >
           {locations
+            .filter(loc => !loc.isCityLevel) // Show only country-level in quick access
             .sort((a, b) => b.count - a.count)
             .slice(0, 10)
             .map((loc) => (
@@ -676,6 +724,27 @@ const AlumniWorldMap = () => {
                 </span>
               </motion.button>
             ))}
+          {/* Bangladesh cities quick access */}
+          {locations.some(l => l.isCityLevel) && (
+            <motion.button
+              onClick={() => {
+                setViewBox({ x: 680, y: 255, width: 60, height: 45 });
+                setSelectedLocation('Bangladesh-zoom');
+              }}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                selectedLocation?.startsWith('Bangladesh') 
+                  ? 'bg-primary text-primary-foreground shadow-lg scale-105' 
+                  : 'bg-card/80 border border-border/50 text-foreground hover:border-primary/50 hover:bg-accent/50'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="truncate max-w-[80px]">Bangladesh</span>
+              <span className={`font-bold ${selectedLocation?.startsWith('Bangladesh') ? 'text-primary-foreground' : 'text-primary'}`}>
+                {locations.filter(l => l.country === 'Bangladesh').reduce((sum, l) => sum + l.count, 0)}
+              </span>
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>
