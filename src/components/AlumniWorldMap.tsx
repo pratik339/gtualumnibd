@@ -702,6 +702,7 @@ const AlumniWorldMap = () => {
           transition={{ delay: 1.5 }}
         >
           {locations
+            .filter(loc => !loc.isCityLevel) // Show only country-level in quick access
             .sort((a, b) => b.count - a.count)
             .slice(0, 10)
             .map((loc) => (
@@ -722,6 +723,27 @@ const AlumniWorldMap = () => {
                 </span>
               </motion.button>
             ))}
+          {/* Bangladesh cities quick access */}
+          {locations.some(l => l.isCityLevel) && (
+            <motion.button
+              onClick={() => {
+                setViewBox({ x: 680, y: 255, width: 60, height: 45 });
+                setSelectedLocation('Bangladesh-zoom');
+              }}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all flex items-center gap-1.5 ${
+                selectedLocation?.startsWith('Bangladesh') 
+                  ? 'bg-primary text-primary-foreground shadow-lg scale-105' 
+                  : 'bg-card/80 border border-border/50 text-foreground hover:border-primary/50 hover:bg-accent/50'
+              }`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="truncate max-w-[80px]">Bangladesh</span>
+              <span className={`font-bold ${selectedLocation?.startsWith('Bangladesh') ? 'text-primary-foreground' : 'text-primary'}`}>
+                {locations.filter(l => l.country === 'Bangladesh').reduce((sum, l) => sum + l.count, 0)}
+              </span>
+            </motion.button>
+          )}
         </motion.div>
       )}
     </div>
