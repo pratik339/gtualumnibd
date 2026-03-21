@@ -481,21 +481,26 @@ const AlumniWorldMap = () => {
             
             const markerKey = location.isCityLevel ? `${location.country}-${location.city}` : location.country;
             const displayLabel = location.isCityLevel && location.city ? location.city : location.country;
-            if (!pos) return null;
             
             const size = getMarkerSize(location.count);
             const gradientId = getMarkerGradientId(location.count);
-            const isHovered = hoveredLocation === location.country;
-            const isSelected = selectedLocation === location.country;
+            const isHovered = hoveredLocation === markerKey;
+            const isSelected = selectedLocation === markerKey;
             
             return (
               <g
-                key={location.country}
-                onMouseEnter={() => setHoveredLocation(location.country)}
+                key={markerKey}
+                onMouseEnter={() => setHoveredLocation(markerKey)}
                 onMouseLeave={() => setHoveredLocation(null)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  focusOnLocation(location.country);
+                  // For city-level, zoom into Bangladesh region
+                  if (location.isCityLevel) {
+                    setViewBox({ x: 680, y: 255, width: 60, height: 45 });
+                    setSelectedLocation(markerKey);
+                  } else {
+                    focusOnLocation(location.country);
+                  }
                 }}
                 style={{ cursor: 'pointer' }}
               >
