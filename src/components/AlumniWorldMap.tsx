@@ -425,7 +425,8 @@ const AlumniWorldMap = () => {
           {/* Connection arcs between top locations */}
           {locations.filter(l => !l.isCityLevel).length > 1 && locations.filter(l => !l.isCityLevel).slice(0, 8).map((loc, i) => {
             const pos = countryPositions[loc.country];
-            const nextLoc = locations[(i + 1) % Math.min(8, locations.length)];
+            const countryLocs = locations.filter(l => !l.isCityLevel);
+            const nextLoc = countryLocs[(i + 1) % Math.min(8, countryLocs.length)];
             const nextPos = countryPositions[nextLoc?.country];
             if (!pos || !nextPos) return null;
             
