@@ -575,7 +575,7 @@ const AlumniWorldMap = () => {
                       fontSize="10"
                       fontWeight="700"
                     >
-                      {location.country.length > 14 ? location.country.slice(0, 14) + '…' : location.country}
+                      {displayLabel.length > 14 ? displayLabel.slice(0, 14) + '…' : displayLabel}
                     </text>
                   </motion.g>
                 )}
