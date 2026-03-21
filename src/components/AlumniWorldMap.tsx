@@ -620,9 +620,14 @@ const AlumniWorldMap = () => {
                   <MapPin className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <div className="font-bold text-sm text-foreground">{location.country}</div>
-                  {location.city && (
+                  <div className="font-bold text-sm text-foreground">
+                    {location.isCityLevel && location.city ? location.city : location.country}
+                  </div>
+                  {location.isCityLevel ? (
+                    <div className="text-xs text-muted-foreground">Bangladesh</div>
+                  ) : location.city ? (
                     <div className="text-xs text-muted-foreground">{location.city}</div>
+                  ) : null}
                   )}
                 </div>
               </div>
