@@ -523,6 +523,8 @@ export default function Analytics() {
                             stroke="hsl(var(--primary))" 
                             strokeWidth={2}
                             fill="url(#yearGradient)"
+                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'hsl(var(--primary))', fill: 'hsl(var(--background))', cursor: 'pointer' }}
+                            dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 0, cursor: 'pointer' }}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
