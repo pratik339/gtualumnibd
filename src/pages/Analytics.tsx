@@ -132,6 +132,10 @@ export default function Analytics() {
         return `College: ${drilldown.value}`;
       case 'location':
         return `City: ${drilldown.value}`;
+      case 'all-cities':
+        return 'All Cities';
+      case 'all-colleges':
+        return 'All Colleges';
       default:
         return '';
     }
