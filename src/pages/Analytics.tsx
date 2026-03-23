@@ -93,10 +93,7 @@ export default function Analytics() {
       case 'branch':
         return profiles.filter(p => p.branches?.name === drilldown.value);
       case 'year':
-        return profiles.filter(p => 
-          (p.passout_year?.toString() === drilldown.value) || 
-          (p.expected_passout_year?.toString() === drilldown.value)
-        );
+        return profiles.filter(p => p.scholarship_year?.toString() === drilldown.value);
       case 'commission':
         return profiles.filter(p => p.high_commissions?.name === drilldown.value);
       case 'college':
