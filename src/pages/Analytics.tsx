@@ -268,8 +268,8 @@ export default function Analytics() {
     { label: 'Total Members', value: profiles.length, icon: Users, color: 'from-primary/20 to-primary/5', description: 'Approved profiles', onClick: () => setDrilldown({ type: 'total' }) },
     { label: 'Alumni', value: alumniCount, icon: GraduationCap, color: 'from-chart-1/20 to-chart-1/5', description: 'Graduated members', onClick: () => setDrilldown({ type: 'alumni' }) },
     { label: 'Current Students', value: studentCount, icon: BookOpen, color: 'from-chart-2/20 to-chart-2/5', description: 'Active students', onClick: () => setDrilldown({ type: 'students' }) },
-    { label: 'Cities', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'College locations', onClick: undefined },
-    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions', onClick: undefined },
+    { label: 'Cities', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'College locations', onClick: () => setDrilldown({ type: 'location', value: Object.keys(locationData)[0] || '' }) },
+    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions', onClick: () => setDrilldown({ type: 'college', value: Object.keys(collegeData)[0] || '' }) },
     { label: 'Scholarships', value: profiles.filter(p => p.scholarship_year).length, icon: Award, color: 'from-chart-5/20 to-chart-5/5', description: 'Scholars awarded', onClick: () => setDrilldown({ type: 'scholars' }) },
   ];
 
