@@ -101,6 +101,10 @@ export default function Analytics() {
         return profiles.filter(p => p.colleges?.name === drilldown.value);
       case 'location':
         return profiles.filter(p => p.colleges?.city === drilldown.value);
+      case 'all-cities':
+        return profiles.filter(p => p.colleges?.city);
+      case 'all-colleges':
+        return profiles.filter(p => p.colleges?.name);
       default:
         return [];
     }
