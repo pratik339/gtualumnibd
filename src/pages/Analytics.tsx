@@ -93,10 +93,7 @@ export default function Analytics() {
       case 'branch':
         return profiles.filter(p => p.branches?.name === drilldown.value);
       case 'year':
-        return profiles.filter(p => 
-          (p.passout_year?.toString() === drilldown.value) || 
-          (p.expected_passout_year?.toString() === drilldown.value)
-        );
+        return profiles.filter(p => p.scholarship_year?.toString() === drilldown.value);
       case 'commission':
         return profiles.filter(p => p.high_commissions?.name === drilldown.value);
       case 'college':
@@ -127,7 +124,7 @@ export default function Analytics() {
       case 'branch':
         return `Branch: ${drilldown.value}`;
       case 'year':
-        return `Year: ${drilldown.value}`;
+        return `Scholarship Year: ${drilldown.value}`;
       case 'commission':
         return `High Commission: ${drilldown.value}`;
       case 'college':
@@ -526,6 +523,8 @@ export default function Analytics() {
                             stroke="hsl(var(--primary))" 
                             strokeWidth={2}
                             fill="url(#yearGradient)"
+                            activeDot={{ r: 6, strokeWidth: 2, stroke: 'hsl(var(--primary))', fill: 'hsl(var(--background))', cursor: 'pointer' }}
+                            dot={{ r: 4, fill: 'hsl(var(--primary))', strokeWidth: 0, cursor: 'pointer' }}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
