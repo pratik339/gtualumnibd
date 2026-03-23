@@ -809,7 +809,7 @@ export default function Analytics() {
           onOpenChange={(open) => !open && setCategoryModal(null)}
           title="Cities"
           subtitle="Click a city to see its members"
-          items={locationChartData}
+          items={locationChartData.map(c => ({ name: c.name, count: c.value }))}
           icon="city"
           onItemClick={(name) => {
             setCategoryModal(null);
