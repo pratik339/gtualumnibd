@@ -491,7 +491,7 @@ export default function Analytics() {
                 <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
                   <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                     <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    Year-wise Distribution
+                    Year Wise Scholarship Granted
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 pt-0">
