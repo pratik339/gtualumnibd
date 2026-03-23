@@ -124,7 +124,7 @@ export default function Analytics() {
       case 'branch':
         return `Branch: ${drilldown.value}`;
       case 'year':
-        return `Year: ${drilldown.value}`;
+        return `Scholarship Year: ${drilldown.value}`;
       case 'commission':
         return `High Commission: ${drilldown.value}`;
       case 'college':
