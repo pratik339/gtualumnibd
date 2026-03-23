@@ -35,6 +35,8 @@ type DrilldownType =
   | { type: 'commission'; value: string }
   | { type: 'college'; value: string }
   | { type: 'location'; value: string }
+  | { type: 'all-cities' }
+  | { type: 'all-colleges' }
   | { type: 'total' }
   | null;
 
