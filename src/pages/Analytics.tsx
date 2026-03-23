@@ -11,6 +11,7 @@ import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Bui
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { AnalyticsDetailModal } from '@/components/analytics/AnalyticsDetailModal';
+import { CategoryListModal } from '@/components/analytics/CategoryListModal';
 import { GujaratMap } from '@/components/analytics/GujaratMap';
 
 // Animated number counter
