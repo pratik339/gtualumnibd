@@ -11,6 +11,7 @@ import { Users, GraduationCap, BookOpen, Globe, TrendingUp, Sparkles, Award, Bui
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { AnalyticsDetailModal } from '@/components/analytics/AnalyticsDetailModal';
+import { CategoryListModal } from '@/components/analytics/CategoryListModal';
 import { GujaratMap } from '@/components/analytics/GujaratMap';
 
 // Animated number counter
@@ -45,6 +46,7 @@ export default function Analytics() {
   const [adminUserIds, setAdminUserIds] = useState<string[]>([]);
   const [adminIdsLoaded, setAdminIdsLoaded] = useState(false);
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
+  const [categoryModal, setCategoryModal] = useState<'cities' | 'colleges' | null>(null);
 
   // Fetch admin user IDs to exclude from analytics
   useEffect(() => {
@@ -278,8 +280,8 @@ export default function Analytics() {
     { label: 'Total Members', value: profiles.length, icon: Users, color: 'from-primary/20 to-primary/5', description: 'Approved profiles', onClick: () => setDrilldown({ type: 'total' }) },
     { label: 'Alumni', value: alumniCount, icon: GraduationCap, color: 'from-chart-1/20 to-chart-1/5', description: 'Graduated members', onClick: () => setDrilldown({ type: 'alumni' }) },
     { label: 'Current Students', value: studentCount, icon: BookOpen, color: 'from-chart-2/20 to-chart-2/5', description: 'Active students', onClick: () => setDrilldown({ type: 'students' }) },
-    { label: 'Cities', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'College locations', onClick: () => setDrilldown({ type: 'all-cities' }) },
-    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions', onClick: () => setDrilldown({ type: 'all-colleges' }) },
+    { label: 'Cities', value: Object.keys(locationData).length, icon: Globe, color: 'from-chart-3/20 to-chart-3/5', description: 'College locations', onClick: () => setCategoryModal('cities') },
+    { label: 'Colleges', value: Object.keys(collegeData).length, icon: Building2, color: 'from-chart-4/20 to-chart-4/5', description: 'Partner institutions', onClick: () => setCategoryModal('colleges') },
     { label: 'Scholarships', value: profiles.filter(p => p.scholarship_year).length, icon: Award, color: 'from-chart-5/20 to-chart-5/5', description: 'Scholars awarded', onClick: () => setDrilldown({ type: 'scholars' }) },
   ];
 
@@ -799,6 +801,34 @@ export default function Analytics() {
           onOpenChange={(open) => !open && setDrilldown(null)}
           title={getDrilldownTitle()}
           profiles={getFilteredProfiles()}
+        />
+
+        {/* Category List Modal - Cities */}
+        <CategoryListModal
+          open={categoryModal === 'cities'}
+          onOpenChange={(open) => !open && setCategoryModal(null)}
+          title="Cities"
+          subtitle="Click a city to see its members"
+          items={locationChartData.map(c => ({ name: c.name, count: c.value }))}
+          icon="city"
+          onItemClick={(name) => {
+            setCategoryModal(null);
+            setDrilldown({ type: 'location', value: name });
+          }}
+        />
+
+        {/* Category List Modal - Colleges */}
+        <CategoryListModal
+          open={categoryModal === 'colleges'}
+          onOpenChange={(open) => !open && setCategoryModal(null)}
+          title="Colleges"
+          subtitle="Click a college to see its members"
+          items={collegeChartData.map(c => ({ name: c.fullName, count: c.value }))}
+          icon="college"
+          onItemClick={(name) => {
+            setCategoryModal(null);
+            setDrilldown({ type: 'college', value: name });
+          }}
         />
       </Layout>
     </ProtectedRoute>
