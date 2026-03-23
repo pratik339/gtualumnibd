@@ -166,11 +166,11 @@ export default function Analytics() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
-  // Year distribution
+  // Year-wise scholarship granted distribution
   const yearData = profiles
-    .filter(p => p.passout_year || p.expected_passout_year)
+    .filter(p => p.scholarship_year)
     .reduce((acc, profile) => {
-      const year = (profile.passout_year || profile.expected_passout_year)?.toString() || 'Unknown';
+      const year = profile.scholarship_year!.toString();
       acc[year] = (acc[year] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
