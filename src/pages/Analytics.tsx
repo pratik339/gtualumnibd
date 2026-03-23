@@ -802,6 +802,34 @@ export default function Analytics() {
           title={getDrilldownTitle()}
           profiles={getFilteredProfiles()}
         />
+
+        {/* Category List Modal - Cities */}
+        <CategoryListModal
+          open={categoryModal === 'cities'}
+          onOpenChange={(open) => !open && setCategoryModal(null)}
+          title="Cities"
+          subtitle="Click a city to see its members"
+          items={locationChartData}
+          icon="city"
+          onItemClick={(name) => {
+            setCategoryModal(null);
+            setDrilldown({ type: 'location', value: name });
+          }}
+        />
+
+        {/* Category List Modal - Colleges */}
+        <CategoryListModal
+          open={categoryModal === 'colleges'}
+          onOpenChange={(open) => !open && setCategoryModal(null)}
+          title="Colleges"
+          subtitle="Click a college to see its members"
+          items={collegeChartData.map(c => ({ name: c.fullName, count: c.value }))}
+          icon="college"
+          onItemClick={(name) => {
+            setCategoryModal(null);
+            setDrilldown({ type: 'college', value: name });
+          }}
+        />
       </Layout>
     </ProtectedRoute>
   );
