@@ -46,6 +46,7 @@ export default function Analytics() {
   const [adminUserIds, setAdminUserIds] = useState<string[]>([]);
   const [adminIdsLoaded, setAdminIdsLoaded] = useState(false);
   const [drilldown, setDrilldown] = useState<DrilldownType>(null);
+  const [categoryModal, setCategoryModal] = useState<'cities' | 'colleges' | null>(null);
 
   // Fetch admin user IDs to exclude from analytics
   useEffect(() => {
