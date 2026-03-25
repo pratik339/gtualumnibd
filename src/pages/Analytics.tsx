@@ -36,6 +36,7 @@ type DrilldownType =
   | { type: 'commission'; value: string }
   | { type: 'college'; value: string }
   | { type: 'location'; value: string }
+  | { type: 'passout'; value: string }
   | { type: 'all-cities' }
   | { type: 'all-colleges' }
   | { type: 'total' }
@@ -94,6 +95,8 @@ export default function Analytics() {
         return profiles.filter(p => p.branches?.name === drilldown.value);
       case 'year':
         return profiles.filter(p => p.scholarship_year?.toString() === drilldown.value);
+      case 'passout':
+        return profiles.filter(p => (p.passout_year || p.expected_passout_year)?.toString() === drilldown.value);
       case 'commission':
         return profiles.filter(p => p.high_commissions?.name === drilldown.value);
       case 'college':
@@ -125,6 +128,8 @@ export default function Analytics() {
         return `Branch: ${drilldown.value}`;
       case 'year':
         return `Scholarship Year: ${drilldown.value}`;
+      case 'passout':
+        return `Passout Year: ${drilldown.value}`;
       case 'commission':
         return `High Commission: ${drilldown.value}`;
       case 'college':
