@@ -36,6 +36,7 @@ type DrilldownType =
   | { type: 'commission'; value: string }
   | { type: 'college'; value: string }
   | { type: 'location'; value: string }
+  | { type: 'passout'; value: string }
   | { type: 'all-cities' }
   | { type: 'all-colleges' }
   | { type: 'total' }
@@ -94,6 +95,8 @@ export default function Analytics() {
         return profiles.filter(p => p.branches?.name === drilldown.value);
       case 'year':
         return profiles.filter(p => p.scholarship_year?.toString() === drilldown.value);
+      case 'passout':
+        return profiles.filter(p => (p.passout_year || p.expected_passout_year)?.toString() === drilldown.value);
       case 'commission':
         return profiles.filter(p => p.high_commissions?.name === drilldown.value);
       case 'college':
@@ -125,6 +128,8 @@ export default function Analytics() {
         return `Branch: ${drilldown.value}`;
       case 'year':
         return `Scholarship Year: ${drilldown.value}`;
+      case 'passout':
+        return `Passout Year: ${drilldown.value}`;
       case 'commission':
         return `High Commission: ${drilldown.value}`;
       case 'college':
@@ -176,16 +181,16 @@ export default function Analytics() {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => parseInt(a.name) - parseInt(b.name));
 
-  // Scholarship year trends
-  const scholarshipData = profiles
-    .filter(p => p.scholarship_year)
+  // Passout year trends
+  const passoutData = profiles
+    .filter(p => p.passout_year || p.expected_passout_year)
     .reduce((acc, profile) => {
-      const year = profile.scholarship_year?.toString() || 'Unknown';
+      const year = (profile.passout_year || profile.expected_passout_year)?.toString() || 'Unknown';
       acc[year] = (acc[year] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
-  const scholarshipChartData = Object.entries(scholarshipData)
+  const passoutChartData = Object.entries(passoutData)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => parseInt(a.name) - parseInt(b.name));
 
@@ -618,25 +623,31 @@ export default function Analytics() {
               </Card>
             </motion.div>
 
-            {/* Scholarship Trends - Line Chart */}
+            {/* Passout Students - Line Chart */}
             <motion.div variants={cardVariants}>
               <Card className="hover:shadow-lg transition-all duration-300 overflow-hidden">
                 <CardHeader className="p-3 sm:p-6 pb-2 sm:pb-4">
                   <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-                    <Award className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                    Scholarship Trends
+                    <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                    Passout Students
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 pt-0">
                   <div className="h-44 sm:h-64">
-                    {scholarshipChartData.length > 0 ? (
+                    {passoutChartData.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart 
-                          data={scholarshipChartData}
+                          data={passoutChartData}
                           margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
+                          onClick={(data) => {
+                            if (data && data.activeLabel) {
+                              setDrilldown({ type: 'passout', value: data.activeLabel });
+                            }
+                          }}
+                          style={{ cursor: 'pointer' }}
                         >
                           <defs>
-                            <linearGradient id="scholarshipLine" x1="0" y1="0" x2="1" y2="0">
+                            <linearGradient id="passoutLine" x1="0" y1="0" x2="1" y2="0">
                               <stop offset="0%" stopColor="hsl(var(--chart-3))" />
                               <stop offset="100%" stopColor="hsl(var(--chart-4))" />
                             </linearGradient>
@@ -655,16 +666,16 @@ export default function Analytics() {
                           <Line 
                             type="monotone" 
                             dataKey="value" 
-                            stroke="url(#scholarshipLine)" 
+                            stroke="url(#passoutLine)" 
                             strokeWidth={2}
-                            dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 1, r: 3 }}
-                            activeDot={{ r: 5, fill: 'hsl(var(--chart-4))' }}
+                            dot={{ fill: 'hsl(var(--chart-3))', strokeWidth: 1, r: 3, cursor: 'pointer' }}
+                            activeDot={{ r: 6, fill: 'hsl(var(--chart-4))', strokeWidth: 2, cursor: 'pointer' }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-                        No scholarship data available
+                        No passout data available
                       </div>
                     )}
                   </div>
