@@ -48,7 +48,7 @@ export default function AdminLogin() {
     if (!validateInputs()) return;
 
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { error, isAdmin: signedInAsAdmin } = await signIn(email, password);
     setLoading(false);
 
     if (error) {
@@ -59,13 +59,14 @@ export default function AdminLogin() {
           : error.message,
         variant: 'destructive',
       });
-    } else {
-      // Check if user is admin after login
+    } else if (!signedInAsAdmin) {
       toast({
-        title: 'Checking admin access...',
+        title: 'Admin Access Required',
+        description: 'This account is not authorized for the admin portal.',
+        variant: 'destructive',
       });
-      // Navigate - the ProtectedRoute will handle admin check
-      navigate('/admin');
+    } else {
+      navigate('/admin', { replace: true });
     }
   };
 
