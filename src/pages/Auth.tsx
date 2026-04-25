@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,10 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+
+  const redirectPath = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '/dashboard';
 
   if (user) {
     return <Navigate to="/dashboard" replace />;
@@ -48,7 +51,7 @@ export default function Auth() {
     if (!validateInputs()) return;
 
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { error, isAdmin } = await signIn(email, password);
     setLoading(false);
 
     if (error) {
@@ -60,7 +63,7 @@ export default function Auth() {
         variant: 'destructive',
       });
     } else {
-      navigate('/dashboard');
+      navigate(isAdmin && redirectPath === '/dashboard' ? '/admin' : redirectPath, { replace: true });
     }
   };
 
@@ -69,7 +72,7 @@ export default function Auth() {
     if (!validateInputs()) return;
 
     setLoading(true);
-    const { error } = await signUp(email, password);
+    const { error, needsEmailConfirmation } = await signUp(email, password);
     setLoading(false);
 
     if (error) {
@@ -84,10 +87,14 @@ export default function Auth() {
       });
     } else {
       toast({
-        title: 'Account Created!',
-        description: 'Welcome! Please complete your profile to get started.',
+        title: needsEmailConfirmation ? 'Check your email' : 'Account Created!',
+        description: needsEmailConfirmation
+          ? 'Please verify your email address, then sign in to continue.'
+          : 'Welcome! Please complete your profile to get started.',
       });
-      navigate('/register');
+      if (!needsEmailConfirmation) {
+        navigate('/register');
+      }
     }
   };
 
