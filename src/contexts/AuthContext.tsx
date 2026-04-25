@@ -8,12 +8,31 @@ interface AuthContextType {
   loading: boolean;
   roleLoading: boolean;
   isAdmin: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: Error | null; user?: User | null; needsEmailConfirmation?: boolean }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; user?: User | null; isAdmin?: boolean }>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const AUTH_TIMEOUT_MS = 20000;
+
+const toAuthError = (error: unknown, fallback: string) => {
+  return error instanceof Error ? error : new Error(fallback);
+};
+
+const withAuthTimeout = async <T,>(operation: Promise<T>, message: string): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), AUTH_TIMEOUT_MS);
+  });
+
+  try {
+    return await Promise.race([operation, timeout]);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+  }
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -30,7 +49,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [roleLoading, setRoleLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkAdminRole = async (userId: string): Promise<boolean> => {
     setRoleLoading(true);
     try {
       const { data, error } = await supabase
@@ -43,13 +62,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Error checking admin role:', error);
         setIsAdmin(false);
-        return;
+        return false;
       }
       
-      setIsAdmin(!!data);
+      const hasAdminRole = !!data;
+      setIsAdmin(hasAdminRole);
+      return hasAdminRole;
     } catch (error) {
       console.error('Error checking admin role:', error);
       setIsAdmin(false);
+      return false;
     } finally {
       setRoleLoading(false);
     }
