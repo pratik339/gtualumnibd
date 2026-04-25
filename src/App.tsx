@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/components/notifications/NotificationProvider";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 // Eagerly load the landing page for fast initial load
 import Landing from "./pages/Landing";
@@ -54,17 +55,17 @@ const App = () => (
                   <Route path="/forgot-password" element={<ForgotPassword />} />
                   <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/admin-login" element={<AdminLogin />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/directory" element={<Directory />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/profile/:id" element={<ProfileView />} />
-                  <Route path="/profile/edit" element={<ProfileEdit />} />
-                  <Route path="/chat" element={<Chat />} />
-                  <Route path="/connections" element={<Connections />} />
-                  <Route path="/community" element={<Community />} />
+                  <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/register" element={<ProtectedRoute><Register /></ProtectedRoute>} />
+                  <Route path="/directory" element={<ProtectedRoute><Directory /></ProtectedRoute>} />
+                  <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute requireAdmin><Admin /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/profile/:id" element={<ProtectedRoute><ProfileView /></ProtectedRoute>} />
+                  <Route path="/profile/edit" element={<ProtectedRoute><ProfileEdit /></ProtectedRoute>} />
+                  <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                  <Route path="/connections" element={<ProtectedRoute><Connections /></ProtectedRoute>} />
+                  <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
