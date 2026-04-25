@@ -162,22 +162,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-    return { error };
+    try {
+      const { data, error } = await withAuthTimeout(
+        supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl
+          }
+        }),
+        'Sign up is taking too long. Please check your connection and try again.'
+      );
+
+      return {
+        error,
+        user: data.user,
+        needsEmailConfirmation: !!data.user && !data.session,
+      };
+    } catch (error) {
+      return { error: toAuthError(error, 'Unable to create account. Please try again.') };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      clearBrokenAuthStorage();
+
+      const { data, error } = await withAuthTimeout(
+        supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        }),
+        'Sign in is taking too long. Please check your connection and try again.'
+      );
+
+      if (error) {
+        return { error };
+      }
+
+      setSession(data.session);
+      setUser(data.user);
+      const hasAdminRole = data.user ? await checkAdminRole(data.user.id) : false;
+
+      return { error: null, user: data.user, isAdmin: hasAdminRole };
+    } catch (error) {
+      clearBrokenAuthStorage();
+      setSession(null);
+      setUser(null);
+      setIsAdmin(false);
+      setRoleLoading(false);
+      return { error: toAuthError(error, 'Unable to sign in. Please try again.') };
+    }
   };
 
   const signOut = async () => {
