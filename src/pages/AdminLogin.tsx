@@ -18,11 +18,11 @@ export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, user, isAdmin } = useAuth();
+  const { signIn, user, isAdmin, roleLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  if (user && isAdmin) {
+  if (user && !roleLoading && isAdmin) {
     return <Navigate to="/admin" replace />;
   }
 
@@ -110,7 +110,7 @@ export default function AdminLogin() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {(loading || roleLoading) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In as Admin
             </Button>
           </form>
