@@ -427,6 +427,17 @@ export default function Register() {
                     required
                   />
 
+                  <div>
+                    <Label htmlFor="enrollment_number">GTU Enrollment Number *</Label>
+                    <Input
+                      id="enrollment_number"
+                      placeholder="e.g., 200120107001"
+                      value={formData.enrollment_number}
+                      onChange={(e) => setFormData({ ...formData, enrollment_number: e.target.value })}
+                      required
+                    />
+                  </div>
+
                   {userType === 'alumni' ? (
                     <div>
                       <Label htmlFor="passout_year">Passout Year</Label>
@@ -441,16 +452,6 @@ export default function Register() {
                     </div>
                   ) : (
                     <>
-                      <div>
-                        <Label htmlFor="enrollment_number">GTU Enrollment Number *</Label>
-                        <Input
-                          id="enrollment_number"
-                          placeholder="e.g., 200120107001"
-                          value={formData.enrollment_number}
-                          onChange={(e) => setFormData({ ...formData, enrollment_number: e.target.value })}
-                          required
-                        />
-                      </div>
                       <div>
                         <Label htmlFor="current_semester">Current Semester *</Label>
                         <Input
