@@ -122,18 +122,19 @@ export default function Register() {
       return;
     }
 
+    // Enrollment number is mandatory for all users
+    if (!formData.enrollment_number.trim()) {
+      toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
+      return;
+    }
+    const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
+    if (!enrollmentResult.success) {
+      toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+
     // Validate required fields for students
     if (userType === 'student') {
-      if (!formData.enrollment_number.trim()) {
-        toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
-        return;
-      }
-      const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
-      if (!enrollmentResult.success) {
-        toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
-        return;
-      }
-
       if (!formData.current_semester) {
         toast({ title: 'Missing Information', description: 'Please select your current semester.', variant: 'destructive' });
         return;
@@ -239,7 +240,7 @@ export default function Register() {
         user_type: userType,
         college_id: formData.college_id || null,
         branch_id: formData.branch_id || null,
-        enrollment_number: userType === 'student' ? formData.enrollment_number || null : null,
+        enrollment_number: formData.enrollment_number || null,
         passout_year: formData.passout_year ? parseInt(formData.passout_year) : null,
         current_semester: formData.current_semester ? parseInt(formData.current_semester) : null,
         expected_passout_year: formData.expected_passout_year ? parseInt(formData.expected_passout_year) : null,
@@ -426,6 +427,17 @@ export default function Register() {
                     required
                   />
 
+                  <div>
+                    <Label htmlFor="enrollment_number">GTU Enrollment Number *</Label>
+                    <Input
+                      id="enrollment_number"
+                      placeholder="e.g., 200120107001"
+                      value={formData.enrollment_number}
+                      onChange={(e) => setFormData({ ...formData, enrollment_number: e.target.value })}
+                      required
+                    />
+                  </div>
+
                   {userType === 'alumni' ? (
                     <div>
                       <Label htmlFor="passout_year">Passout Year</Label>
@@ -440,16 +452,6 @@ export default function Register() {
                     </div>
                   ) : (
                     <>
-                      <div>
-                        <Label htmlFor="enrollment_number">GTU Enrollment Number *</Label>
-                        <Input
-                          id="enrollment_number"
-                          placeholder="e.g., 200120107001"
-                          value={formData.enrollment_number}
-                          onChange={(e) => setFormData({ ...formData, enrollment_number: e.target.value })}
-                          required
-                        />
-                      </div>
                       <div>
                         <Label htmlFor="current_semester">Current Semester *</Label>
                         <Input
