@@ -240,7 +240,7 @@ export default function Register() {
         user_type: userType,
         college_id: formData.college_id || null,
         branch_id: formData.branch_id || null,
-        enrollment_number: userType === 'student' ? formData.enrollment_number || null : null,
+        enrollment_number: formData.enrollment_number || null,
         passout_year: formData.passout_year ? parseInt(formData.passout_year) : null,
         current_semester: formData.current_semester ? parseInt(formData.current_semester) : null,
         expected_passout_year: formData.expected_passout_year ? parseInt(formData.expected_passout_year) : null,
