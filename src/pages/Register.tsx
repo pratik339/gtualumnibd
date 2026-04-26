@@ -122,18 +122,19 @@ export default function Register() {
       return;
     }
 
+    // Enrollment number is mandatory for all users
+    if (!formData.enrollment_number.trim()) {
+      toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
+      return;
+    }
+    const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
+    if (!enrollmentResult.success) {
+      toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
+      return;
+    }
+
     // Validate required fields for students
     if (userType === 'student') {
-      if (!formData.enrollment_number.trim()) {
-        toast({ title: 'Missing Information', description: 'Please enter your GTU Enrollment Number.', variant: 'destructive' });
-        return;
-      }
-      const enrollmentResult = enrollmentNumberSchema.safeParse(formData.enrollment_number);
-      if (!enrollmentResult.success) {
-        toast({ title: 'Invalid Enrollment Number', description: enrollmentResult.error.errors[0].message, variant: 'destructive' });
-        return;
-      }
-
       if (!formData.current_semester) {
         toast({ title: 'Missing Information', description: 'Please select your current semester.', variant: 'destructive' });
         return;
